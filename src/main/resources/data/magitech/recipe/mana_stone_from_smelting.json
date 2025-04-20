@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 200,
+  "experience": 0.1,
+  "group": "mana_stone",
+  "ingredient": {
+    "item": "magitech:mana_cobblestone"
+  },
+  "result": {
+    "id": "magitech:mana_stone"
+  }
+}

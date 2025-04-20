@@ -1,5 +1,8 @@
 package net.kuina.magitech;
 
+import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.item.magitechitems;
+import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -35,6 +38,9 @@ public class magitech{
 
         NeoForge.EVENT_BUS.register(this);
 
+        magitechitems.register(modEventBus);
+        magitechblocks.register(modEventBus);
+
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
@@ -49,9 +55,17 @@ public class magitech{
     }
 
     // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS){
+            event.accept(magitechitems.LOW_MANA_INGOT);
+            event.accept(magitechitems.MIDDLE_MANA_INGOT);
+            event.accept(magitechitems.HIGH_MANA_INGOT);
+        }
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){
+            event.accept(magitechblocks.MANA_STONE);
+            event.accept(magitechblocks.MANA_COBBLESTONE);
 
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

@@ -1,35 +1,48 @@
 package net.kuina.magitech.item;
 
+import net.kuina.magitech.magitech;
+import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.item.custom.ManaBucketItem;
 
-
-import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.Tags;
+
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.function.Function;
+
 public class magitechitems {
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(magitech.MOD_ID);
 
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems("magitech");
+    public static final DeferredItem<Item> MANA_BUCKET =
+            register("mana_bucket", ManaBucketItem::new);
 
-    public static final DeferredItem<Item> LOW_MANA_STONE = ITEMS.register("lowmanastone",
-            ()-> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> LOW_MANA_INGOT = ITEMS.register("low_mana_ingot",
-            ()-> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> MIDDLE_MANA_INGOT = ITEMS.register("middle_mana_ingot",
-            ()-> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> HIGH_MANA_INGOT = ITEMS.register("high_mana_ingot",
-            ()-> new Item(new Item.Properties()));
-    public static final DeferredItem<BucketItem> MANA_BUCKET = ITEMS.register("mana_bucket",
-            () -> new BucketItem(Fluids.WATER, new Item.Properties()));
-    //Mana_Bucketの実装完了、マナフルイドが出来たらWATERと入れ替える
+    // ここで初めてブロックアイテムとして登録
+    public static final DeferredItem<Item> MANA =
+            block(magitechblocks.MANA);
+    public static final DeferredItem<Item> MANA_STONE =
+            block(magitechblocks.MANA_STONE);
+    public static final DeferredItem<Item> MANA_COBBLESTONE =
+            block(magitechblocks.MANA_COBBLESTONE);
+    public static final DeferredItem<Item> LOW_MANA_INGOT =
+            register("low_mana_ingot", Item::new);
+    public static final DeferredItem<Item> MIDDLE_MANA_INGOT =
+            register("middle_mana_ingot", Item::new);
+    public static final DeferredItem<Item> HIGH_MANA_INGOT =
+            register("high_mana_ingot", Item::new);
 
+    private static <I extends Item> DeferredItem<I> register(String name, Function<Item.Properties, ? extends I> sup) {
+        return ITEMS.registerItem(name, sup, new Item.Properties());
+    }
 
-    public static void register (IEventBus eventBus){
-        ITEMS.register(eventBus);
+    private static DeferredItem<Item> block(DeferredHolder<Block, Block> block) {
+        return ITEMS.registerItem(
+                block.getId().getPath(),
+                props -> new BlockItem(block.get(), props),
+                new Item.Properties()
+        );
     }
 }

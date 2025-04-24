@@ -1,8 +1,13 @@
 package net.kuina.magitech;
 
 import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.fluid.magitechfluids;
 import net.kuina.magitech.item.magitechitems;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+
 import net.minecraft.world.item.CreativeModeTabs;
+
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -20,16 +25,12 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
+
+
 @Mod(magitech.MOD_ID)
 public class magitech{
     public static final String MOD_ID = "magitech";
     private static final Logger LOGGER = LogUtils.getLogger();
-
-
-
-    // The constructor for the mod class is the first code that is run when your mod is loaded.
-    // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public magitech(IEventBus modEventBus, ModContainer modContainer)
     {
 
@@ -37,14 +38,12 @@ public class magitech{
 
 
         NeoForge.EVENT_BUS.register(this);
+        net.kuina.magitech.block.magitechblocks.BLOCKS.register(modEventBus);
+        net.kuina.magitech.item.magitechitems.ITEMS.register(modEventBus);
+        net.kuina.magitech.fluid.magitechfluids.FLUIDS.register(modEventBus);
+        net.kuina.magitech.fluidtype.magitechfluidtypes.FLUID_TYPE.register(modEventBus);
 
-        magitechitems.register(modEventBus);
-        magitechblocks.register(modEventBus);
-
-        // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
-
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -60,29 +59,30 @@ public class magitech{
             event.accept(magitechitems.LOW_MANA_INGOT);
             event.accept(magitechitems.MIDDLE_MANA_INGOT);
             event.accept(magitechitems.HIGH_MANA_INGOT);
+            event.accept(magitechitems.MANA_BUCKET);
         }
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){
-            event.accept(magitechblocks.MANA_STONE);
-            event.accept(magitechblocks.MANA_COBBLESTONE);
+            event.accept(magitechitems.MANA_STONE);
+            event.accept(magitechitems.MANA_COBBLESTONE);
 
         }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-
+    public void onServerStarting(ServerStartingEvent event){
     }
 
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = "magitech", bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
+    public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
 
+
+        };
+
+        };
         }
-    }
-}
+
+

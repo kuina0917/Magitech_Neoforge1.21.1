@@ -3,5 +3,8 @@
  "item.magitech.middle_mana_ingot":"瑠輝マナインゴット",
  "item.magitech.high_mana_ingot":"幻輝マナインゴット",
  "block.magitech.mana_stone": "マナを帯びた石",
- "block.magitech.mana_cobblestone": "マナを帯びた丸石"
+ "block.magitech.mana_cobblestone": "マナを帯びた丸石",
+ "item.magitech.mana_bucket": "マナバケツ",
+ "fluid.magitech.mana": "マナ",
+ "block.magitech.mana": "マナ"
 }

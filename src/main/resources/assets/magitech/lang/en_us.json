@@ -1,5 +1,9 @@
 {
   "item.magitech.low_mana_ingot":"LowManaIngot",
   "item.magitech.middle_mana_ingot":"MiddleManaIngot",
-  "item.magitech.high_mana_ingot":"HighManaIngot"
+  "item.magitech.high_mana_ingot":"HighManaIngot",
+  "item.magitech.mana_bucket": "Mana Bucket",
+  "block.magitech.mana_fluid": "Mana Fluid",
+  "fluid.magitech.mana": "Mana",
+  "block.magitech.mana": "Mana"
 }

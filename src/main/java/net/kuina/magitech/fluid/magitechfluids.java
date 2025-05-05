@@ -21,13 +21,18 @@ public class magitechfluids {
     public static final DeferredHolder<Fluid, FlowingFluid> MANA = FLUIDS.register("mana", () -> new ManaFluid.Source());
     public static final DeferredHolder<Fluid, FlowingFluid> FLOWING_MANA = FLUIDS.register("flowing_mana", () -> new ManaFluid.Flowing());
 
+
+
+
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientFluidSetup {
         @SubscribeEvent
         public static void ClientSetup(FMLClientSetupEvent event) {
-                ItemBlockRenderTypes.setRenderLayer(MANA.get(), RenderType.translucent());
-                ItemBlockRenderTypes.setRenderLayer(FLOWING_MANA.get(), RenderType.translucent());
-            }
+            ItemBlockRenderTypes.setRenderLayer(MANA.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(FLOWING_MANA.get(), RenderType.translucent());
+
         }
     }
+}
+
 

@@ -9,29 +9,22 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
 
-import static net.minecraft.world.level.block.SoundType.STONE;
+import static net.minecraft.world.level.block.SoundType.*;
 
 public class magitechblocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(magitech.MOD_ID);
     //マナの追加
     public static final DeferredBlock<Block> MANA =
             register("mana", ManaBlock::new);
-    public static final DeferredBlock<Block> MIDDLE_MANA =
-            register("middle_mana", MiddleManaBlock::new);
-    public static final DeferredBlock<Block> HIGH_MANA =
-            register("high_mana", HighManaBlock::new);
-    public static final DeferredBlock<Block> ENHANCED_MANA =
-            register("enhanced_mana", EnhancedManaBlock::new);
-    public static final DeferredBlock<Block> SUPREME_MANA =
-            register("supreme_mana", SupremeManaBlock::new);
 
     //ブロックの追加
     public static final DeferredBlock<Block> MANA_STONE =
             register("mana_stone", props -> new Block(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().sound(STONE)));
     public static final DeferredBlock<Block> MANA_COBBLESTONE =
             register("mana_cobblestone", props -> new Block(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().sound(STONE)));
+    public static final DeferredBlock<Block> TESTBLOCK =
+            register("lie_dirt", props -> new Block(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops().sound(GLASS)));
 
     private static <B extends Block> DeferredBlock<B> register(String name, Function<BlockBehaviour.Properties, ? extends B> supplier) {
         return BLOCKS.registerBlock(name, supplier, BlockBehaviour.Properties.of());
-    }
-}
+    }}

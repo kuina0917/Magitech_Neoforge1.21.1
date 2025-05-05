@@ -1,11 +1,13 @@
 package net.kuina.magitech;
 
 import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.entity.magitechentities;
 import net.kuina.magitech.fluid.magitechfluids;
 import net.kuina.magitech.item.magitechitems;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-
+import net.kuina.magitech.client.renderer.ZoltrakProjectileRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
 
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ public class magitech{
         net.kuina.magitech.item.magitechitems.ITEMS.register(modEventBus);
         net.kuina.magitech.fluid.magitechfluids.FLUIDS.register(modEventBus);
         net.kuina.magitech.fluidtype.magitechfluidtypes.FLUID_TYPE.register(modEventBus);
+        net.kuina.magitech.entity.magitechentities.ENTITIES.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -60,11 +63,14 @@ public class magitech{
             event.accept(magitechitems.MIDDLE_MANA_INGOT);
             event.accept(magitechitems.HIGH_MANA_INGOT);
             event.accept(magitechitems.MANA_BUCKET);
+            event.accept(magitechitems.MANA_CRYSTAL);
+            event.accept(magitechitems.CRYSTAL_ROD);
+
         }
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){
             event.accept(magitechitems.MANA_STONE);
             event.accept(magitechitems.MANA_COBBLESTONE);
-
+            event.accept(magitechitems.TESTBLOCK);
         }
     }
 
@@ -77,12 +83,14 @@ public class magitech{
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        { event.enqueueWork(() -> {
+            EntityRenderers.register(
+                    magitechentities.ZOLTRAK_PROJECTILE.get(),
+                    ZoltrakProjectileRenderer::new
 
 
-        };
-
-        };
-        }
+            );
+        });
+        }}}
 
 

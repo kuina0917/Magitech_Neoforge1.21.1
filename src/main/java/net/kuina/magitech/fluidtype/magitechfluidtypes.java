@@ -15,4 +15,5 @@ public class magitechfluidtypes {
     public static final DeferredHolder<FluidType, FluidType> MANA_FLUID_TYPE = FLUID_TYPE.register("mana", ()-> new ManaFluidType());
 
 
+
     }

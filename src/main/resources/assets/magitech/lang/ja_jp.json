@@ -6,5 +6,8 @@
  "block.magitech.mana_cobblestone": "マナを帯びた丸石",
  "item.magitech.mana_bucket": "マナバケツ",
  "fluid.magitech.mana": "マナ",
- "block.magitech.mana": "マナ"
+ "block.magitech.mana": "マナ",
+ "block.magitech.lie_dirt": "土(本物)",
+ "item.magitech.mana_crystal": "マナクリスタル",
+ "item.magitech.crystal_rod": "クリスタルロッド"
 }

@@ -1,5 +1,6 @@
 package net.kuina.magitech.entity;
 
+import net.kuina.magitech.entity.custom.MagicCircle;
 import net.kuina.magitech.entity.custom.ZoltrakProjectile;
 import net.kuina.magitech.magitech;
 import net.minecraft.core.registries.Registries;
@@ -17,5 +18,12 @@ public class magitechentities {
                     EntityType.Builder.<ZoltrakProjectile>of(ZoltrakProjectile::new, MobCategory.MISC)
                             .sized(0.3f, 0.3f)
                             .build("zoltrak_projectile")
+            );
+    public static final DeferredHolder<EntityType<?>, EntityType<MagicCircle>> MAGIC_CIRCLE =
+            ENTITIES.register("magic_circle", () ->
+                    EntityType.Builder.<MagicCircle>of(MagicCircle::new, MobCategory.MISC)
+                            .sized(0.5f, 0.5f)
+                            .clientTrackingRange(32)
+                            .build("magic_circle")
             );
 }

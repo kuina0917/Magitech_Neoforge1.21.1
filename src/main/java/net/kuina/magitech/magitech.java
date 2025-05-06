@@ -1,11 +1,11 @@
 package net.kuina.magitech;
 
-import net.kuina.magitech.block.magitechblocks;
+
+import net.kuina.magitech.component.magitechcomponents;
 import net.kuina.magitech.entity.magitechentities;
-import net.kuina.magitech.fluid.magitechfluids;
+import net.kuina.magitech.client.renderer.MagicCircleRenderer;
 import net.kuina.magitech.item.magitechitems;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
+
 import net.kuina.magitech.client.renderer.ZoltrakProjectileRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -45,6 +45,7 @@ public class magitech{
         net.kuina.magitech.fluid.magitechfluids.FLUIDS.register(modEventBus);
         net.kuina.magitech.fluidtype.magitechfluidtypes.FLUID_TYPE.register(modEventBus);
         net.kuina.magitech.entity.magitechentities.ENTITIES.register(modEventBus);
+        magitechcomponents.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -87,7 +88,11 @@ public class magitech{
             EntityRenderers.register(
                     magitechentities.ZOLTRAK_PROJECTILE.get(),
                     ZoltrakProjectileRenderer::new
+            );
 
+                    EntityRenderers.register(
+                            magitechentities.MAGIC_CIRCLE.get(),
+                            MagicCircleRenderer::new
 
             );
         });

@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.LivingEntity;
+
 
 
 public class ZoltrakProjectile extends ThrowableProjectile implements ItemSupplier {
@@ -26,7 +28,13 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
         super(magitechentities.ZOLTRAK_PROJECTILE.get(), shooter, level);
     }
     private Vec3 startPos;  // 発射開始位置
-    private static final double MAX_RANGE = 20.0; // 有効射程距離（ブロック単位）
+    private static final double MAX_RANGE = 30.0; // 有効射程距離（ブロック単位）
+    private static final double HOMING_RADIUS = 10.0;         // 追尾可能な半径
+    private static final double HOMING_STRENGTH = 0.8;         // 追尾の強さ（0〜1）
+    private LivingEntity homingTarget = null;                  // ロックオン対象
+
+
+
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -66,19 +74,47 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
         // 表示されるアイテム（仮にエンダーパール）
         return new ItemStack(Items.ENDER_PEARL);
     }
-
     @Override
     public void tick() {
         super.tick();
 
-        // 最初のtickで開始位置を記録
-        if (startPos == null) {
-            startPos = this.position();
-        }
-
-        // 射程距離を超えたら削除
+        // 射程の初期化と範囲チェック
+        if (startPos == null) startPos = this.position();
         if (this.position().distanceTo(startPos) > MAX_RANGE) {
             this.discard();
             return;
         }
-}}
+
+        // ホーミング処理（角度制限あり）
+        if (!this.level().isClientSide) {
+            Entity owner = this.getOwner();
+            if (owner instanceof LivingEntity livingOwner) {
+                Vec3 ownerLook = livingOwner.getLookAngle().normalize();
+                double maxAngle = Math.toRadians(45);
+
+                if (homingTarget == null || !homingTarget.isAlive()) {
+                    homingTarget = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(HOMING_RADIUS))
+                            .stream()
+                            .filter(entity -> entity != this.getOwner())
+                            .filter(LivingEntity::isAlive)
+                            .filter(entity -> {
+                                Vec3 toTarget = entity.position().subtract(this.position()).normalize();
+                                return ownerLook.dot(toTarget) >= Math.cos(maxAngle);
+                            })
+                            .min((a, b) -> Double.compare(this.distanceToSqr(a), this.distanceToSqr(b)))
+                            .orElse(null);
+                }
+
+                if (homingTarget != null) {
+                    Vec3 direction = homingTarget.position().add(0, homingTarget.getBbHeight() / 2, 0).subtract(this.position()).normalize();
+                    Vec3 newVelocity = this.getDeltaMovement().add(direction.scale(HOMING_STRENGTH)).normalize().scale(0.9);
+                    this.setDeltaMovement(newVelocity);
+                }
+            }
+        }
+
+        // クライアント：パーティクル
+        if (this.level().isClientSide) {
+            this.level().addParticle(ParticleTypes.END_ROD, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+        }
+    }}

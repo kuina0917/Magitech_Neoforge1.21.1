@@ -1,5 +1,6 @@
 package net.kuina.magitech.item;
 
+import net.kuina.magitech.block.custom.CreativeEtherEnergyBlock;
 import net.kuina.magitech.item.custom.RodItem;
 import net.kuina.magitech.magitech;
 import net.kuina.magitech.block.magitechblocks;
@@ -43,8 +44,10 @@ public class magitechitems {
             register("crystal_rod", props -> new RodItem(props
                             .stacksTo(1)
                             .durability(200)
-                            .rarity(Rarity.UNCOMMON)
-            ));
+                            .rarity(Rarity.UNCOMMON)));
+    /** ★ 追加：クリエイティブ・エーテル・エネルギー・ブロックのアイテム */
+    public static final DeferredItem<Item> CREATIVE_ETHER_ENERGY_BLOCK =
+            block(magitechblocks.CREATIVE_ETHER_ENERGY_BLOCK);
 
 
 
@@ -52,10 +55,11 @@ public class magitechitems {
         return ITEMS.registerItem(name, sup, new Item.Properties());
     }
 
-    private static DeferredItem<Item> block(DeferredHolder<Block, Block> block) {
+    /** 任意の Block を BlockItem 化して登録するヘルパ */
+    private static DeferredItem<Item> block(DeferredHolder<Block, ? extends Block> holder) {
         return ITEMS.registerItem(
-                block.getId().getPath(),
-                props -> new BlockItem(block.get(), props),
+                holder.getId().getPath(),                 // 登録名＝ブロックと同じ
+                props -> new BlockItem(holder.get(), props),
                 new Item.Properties()
         );
     }

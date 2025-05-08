@@ -1,6 +1,6 @@
 package net.kuina.magitech.item.custom;
 
-import net.kuina.magitech.energy.EtherEnergyStorage;
+import net.kuina.magitech.energy.PlayerEtherEnergy;
 import net.kuina.magitech.entity.custom.ZoltrakProjectile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -16,113 +16,111 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import static net.kuina.magitech.component.magitechcomponents.ZOLTRAK_MODE;
 
 public class RodItem extends Item {
 
-    private static final Vec3[] BACK_FIRE_OFFSETS = new Vec3[]{
-            new Vec3(-1.4, 2.0, 0.6),
-            new Vec3(-1.4, 1.8, 0.0),
+    /* 背面６点の発射オフセット（左右３発ずつ） */
+    private static final Vec3[] OFFSETS = {
+            new Vec3(-1.4, 2.0,  0.6),
+            new Vec3(-1.4, 1.8,  0.0),
             new Vec3(-1.5, 1.6, -0.6),
-            new Vec3(1.4, 2.0, 0.6),
-            new Vec3(1.4, 1.8, 0.0),
-            new Vec3(1.5, 1.6, -0.6)
+            new Vec3( 1.4, 2.0,  0.6),
+            new Vec3( 1.4, 1.8,  0.0),
+            new Vec3( 1.5, 1.6, -0.6)
     };
 
-    private static final int ENERGY_COST_SINGLE = 10;
-    private static final int ENERGY_COST_RAPID = 10;
+    private static final int SINGLE_COST = 10;
+    private static final int RAPID_COST  = 10;
 
-    // プレイヤーごとのエネルギー管理
-    private static final Map<UUID, EtherEnergyStorage> energyMap = new HashMap<>();
+    public RodItem(Properties p) { super(p); }
 
-    public RodItem(Properties props) {
-        super(props);
+    /* --------------------------------------------------------------------- */
+    /*  右クリック                                                            */
+    /* --------------------------------------------------------------------- */
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level lvl, Player pl, InteractionHand hand) {
+        ItemStack stk = pl.getItemInHand(hand);
+
+        /* スニークでモード切替 */
+        if (pl.isCrouching()) {
+            if (!lvl.isClientSide) {
+                boolean rapid = stk.getOrDefault(ZOLTRAK_MODE.get(), false);
+                stk.set(ZOLTRAK_MODE.get(), !rapid);
+                pl.displayClientMessage(Component.literal(
+                                "モード切替: " + (!rapid ? "連射" : "単発"))
+                        .withStyle(ChatFormatting.AQUA), true);
+            }
+            return InteractionResultHolder.sidedSuccess(stk, lvl.isClientSide);
+        }
+
+        boolean rapid = stk.getOrDefault(ZOLTRAK_MODE.get(), false);
+
+        /* -------------------------------- 単発モード ----------------------- */
+        if (!rapid) {
+            if (!lvl.isClientSide) {                                   // ★ サーバー側だけで消費
+                if (!PlayerEtherEnergy.tryConsume(pl, SINGLE_COST)) {
+                    warnNoEnergy(pl);
+                    return InteractionResultHolder.fail(stk);
+                }
+            }
+
+            fire(lvl, pl, new Vec3(0, 1, 0), 0f);
+            pl.getCooldowns().addCooldown(this, 10);
+            return InteractionResultHolder.sidedSuccess(stk, lvl.isClientSide);
+        }
+
+        /* -------------------------------- 連射モード ----------------------- */
+        pl.startUsingItem(hand);
+        return InteractionResultHolder.consume(stk);
     }
 
+    /* --------------------------------------------------------------------- */
+    /*  長押し中に毎 tick 呼ばれる（連射）                                    */
+    /* --------------------------------------------------------------------- */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
+    public void onUseTick(Level lvl, LivingEntity usr, ItemStack stk, int rem) {
+        if (!(usr instanceof Player pl) || lvl.isClientSide)   return;
+        if (!stk.getOrDefault(ZOLTRAK_MODE.get(), false))      return; // 単発モードなら無視
+        if (lvl.getGameTime() % 4 != 0)                        return; // 4tick に 1 発
 
-        if (player.isCrouching()) {
-            if (!level.isClientSide) {
-                boolean current = stack.getOrDefault(ZOLTRAK_MODE.get(), false);
-                stack.set(ZOLTRAK_MODE.get(), !current);
-                String modeName = !current ? "連射モード" : "単発モード";
-                player.displayClientMessage(Component.literal("モード切替: " + modeName).withStyle(ChatFormatting.AQUA), true);
-            }
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-        }
-
-        boolean isRapid = stack.getOrDefault(ZOLTRAK_MODE.get(), false);
-        int energyCost = isRapid ? ENERGY_COST_RAPID : ENERGY_COST_SINGLE;
-
-        if (!level.isClientSide) {
-            EtherEnergyStorage energyStorage = getEnergyStorage(player);
-            if (energyStorage.hasEnergy(energyCost)) {
-                energyStorage.removeEnergy(energyCost);
-            } else {
-                player.displayClientMessage(Component.literal("エネルギーが足りません！").withStyle(ChatFormatting.RED), true);
-                return InteractionResultHolder.fail(stack);
-            }
-        }
-
-        if (!isRapid) {
-            ZoltrakProjectile projectile = new ZoltrakProjectile(level, player);
-            projectile.setPos(player.getX(), player.getY() + 1.0, player.getZ());
-            projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 0.0F);
-            level.addFreshEntity(projectile);
-            player.getCooldowns().addCooldown(this, 10);
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 25.0F, 4.0F + level.random.nextFloat() * 0.2F);
-        }
-
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-    }
-
-    @Override
-    public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        if (!(user instanceof Player player) || level.isClientSide) return;
-        if (!stack.getOrDefault(ZOLTRAK_MODE.get(), false)) return;
-        if (level.getGameTime() % 4 != 0) return;
-
-        EtherEnergyStorage energyStorage = getEnergyStorage(player);
-        if (!energyStorage.hasEnergy(ENERGY_COST_RAPID)) {
-            player.displayClientMessage(Component.literal("エネルギーが足りません！").withStyle(ChatFormatting.RED), true);
+        /* エネルギー消費（サーバー側だけ呼ばれる） */
+        if (!PlayerEtherEnergy.tryConsume(pl, RAPID_COST)) {
+            warnNoEnergy(pl);
             return;
         }
-        energyStorage.removeEnergy(ENERGY_COST_RAPID);
 
-        Vec3 offset = BACK_FIRE_OFFSETS[level.getRandom().nextInt(BACK_FIRE_OFFSETS.length)];
-        Vec3 rotatedOffset = offset.yRot((float) Math.toRadians(-player.getYRot()));
-        Vec3 spawnPos = player.position().add(rotatedOffset);
-
-        ZoltrakProjectile projectile = new ZoltrakProjectile(level, player);
-        projectile.setPos(spawnPos);
-        projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 0.3F);
-        level.addFreshEntity(projectile);
-
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 25.0F, 4.0F + level.random.nextFloat() * 0.2F);
+        Vec3 off = OFFSETS[lvl.getRandom().nextInt(OFFSETS.length)]
+                .yRot((float) Math.toRadians(-pl.getYRot()));
+        fire(lvl, pl, off, 0.3f);
     }
 
-    @Override
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {}
+    /* --------------------------------------------------------------------- */
+    /*  発射物生成 + 効果音                                                   */
+    /* --------------------------------------------------------------------- */
+    private static void fire(Level lvl, Player pl, Vec3 off, float inaccurate) {
+        ZoltrakProjectile proj = new ZoltrakProjectile(lvl, pl);
+        proj.setPos(pl.getX() + off.x, pl.getY() + off.y, pl.getZ() + off.z);
+        proj.shootFromRotation(pl, pl.getXRot(), pl.getYRot(), 0, 1.5f, inaccurate);
+        lvl.addFreshEntity(proj);
 
-    @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
+        lvl.playSound(null, pl.getX(), pl.getY(), pl.getZ(),
+                SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS,
+                25f, 4f + lvl.random.nextFloat() * 0.2f);
+
+        // デバッグ用：残量表示
+        pl.displayClientMessage(Component.literal(
+                "残量: " + PlayerEtherEnergy.getEnergy(pl)), true);
     }
 
-    @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
+    private static void warnNoEnergy(Player pl){
+        pl.displayClientMessage(Component.literal("エネルギーが足りません！")
+                .withStyle(ChatFormatting.RED), true);
     }
 
-    private EtherEnergyStorage getEnergyStorage(Player player) {
-        return energyMap.computeIfAbsent(player.getUUID(), id -> new EtherEnergyStorage(100));
-    }
+    /* その他オーバーライド */
+    @Override public void releaseUsing(ItemStack s, Level l, LivingEntity e, int t) {}
+    @Override public int  getUseDuration(ItemStack s, LivingEntity e){ return 72000; }
+    @Override public UseAnim getUseAnimation(ItemStack s){ return UseAnim.BOW; }
 }
+

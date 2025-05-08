@@ -25,11 +25,18 @@ public class MagicCircleRenderer extends EntityRenderer<MagicCircle> {
     @Override
     public void render(MagicCircle entity, float entityYaw, float partialTicks, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight) {
-        System.out.println("MagicCircleRenderer is rendering!");
         poseStack.pushPose();
 
         // 若干浮かせてZファイト回避
         poseStack.translate(0.0f, 0.01f, 0.0f);
+        float yRot = entity.getYRot();
+        float adjustedRotation = yRot;
+
+        if (Math.abs(yRot - 90) < 30 || Math.abs(yRot - 270) < 30) {
+            adjustedRotation += 45.0F; // 東西を向いているときだけ角度追加
+        }
+
+        poseStack.mulPose(Axis.YP.rotationDegrees(adjustedRotation));
         poseStack.mulPose(Axis.XP.rotationDegrees(90));
         poseStack.scale(1.0f, 1.0f, 1.0f); // 描画サイズ調整（必要に応じて変更）
 

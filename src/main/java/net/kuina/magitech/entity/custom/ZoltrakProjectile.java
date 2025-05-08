@@ -29,7 +29,7 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
     }
     private Vec3 startPos;  // 発射開始位置
     private static final double MAX_RANGE = 30.0; // 有効射程距離（ブロック単位）
-    private static final double HOMING_RADIUS = 10.0;         // 追尾可能な半径
+    private static final double HOMING_RADIUS = 15.0;         // 追尾可能な半径
     private static final double HOMING_STRENGTH = 0.8;         // 追尾の強さ（0〜1）
     private LivingEntity homingTarget = null;                  // ロックオン対象
 
@@ -71,8 +71,8 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
 
     @Override
     public ItemStack getItem() {
-        // 表示されるアイテム（仮にエンダーパール）
-        return new ItemStack(Items.ENDER_PEARL);
+        // 表示されるアイテム
+        return new ItemStack(Items.SNOWBALL);
     }
     @Override
     public void tick() {
@@ -113,8 +113,16 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
             }
         }
 
-        // クライアント：パーティクル
+        // クライアント：ビームパーティクル演出
         if (this.level().isClientSide) {
-            this.level().addParticle(ParticleTypes.END_ROD, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+            Vec3 dir = this.getDeltaMovement().normalize().scale(0.25);
+            for (double d = 0.0; d < 1.5; d += 0.2) {
+                Vec3 base = this.position().subtract(dir.scale(d));
+
+
+
+                this.level().addParticle(ParticleTypes.GLOW, base.x, base.y + 0.05, base.z, 0, 0, 0);
+                this.level().addParticle(ParticleTypes.WITCH, base.x, base.y - 0.05, base.z, 0, 0, 0);
+            }
         }
     }}

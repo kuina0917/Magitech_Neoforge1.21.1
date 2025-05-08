@@ -24,6 +24,8 @@ public class magitechblocks {
             register("mana_cobblestone", props -> new Block(BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().sound(STONE)));
     public static final DeferredBlock<Block> TESTBLOCK =
             register("lie_dirt", props -> new Block(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops().sound(GLASS)));
+    public static final DeferredBlock<CreativeEtherEnergyBlock> CREATIVE_ETHER_ENERGY_BLOCK =
+            register("creative_ether_energy_block", CreativeEtherEnergyBlock::new);
 
     private static <B extends Block> DeferredBlock<B> register(String name, Function<BlockBehaviour.Properties, ? extends B> supplier) {
         return BLOCKS.registerBlock(name, supplier, BlockBehaviour.Properties.of());

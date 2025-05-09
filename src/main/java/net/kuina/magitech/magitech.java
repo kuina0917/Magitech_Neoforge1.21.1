@@ -6,14 +6,13 @@ import net.kuina.magitech.component.magitechcomponents;
 import net.kuina.magitech.entity.magitechentities;
 import net.kuina.magitech.client.renderer.MagicCircleRenderer;
 import net.kuina.magitech.client.renderer.MagicCircleRapidFireRenderer;
+
 import net.kuina.magitech.item.magitechitems;
 
 import net.kuina.magitech.client.renderer.ZoltrakProjectileRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
 
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -53,8 +52,6 @@ public class magitech{
         net.kuina.magitech.entity.magitechentities.ENTITIES.register(modEventBus);
         magitechcomponents.register(modEventBus);
         modEventBus.addListener(EnergyHudOverlay::registerGuiOverlay);
-
-
         modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

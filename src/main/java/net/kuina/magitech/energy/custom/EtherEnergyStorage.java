@@ -1,4 +1,4 @@
-package net.kuina.magitech.energy;
+package net.kuina.magitech.energy.custom;
 
 // エネルギー（Ether）の蓄積と管理を行うシンプルなクラス
 public class EtherEnergyStorage {

@@ -1,6 +1,9 @@
 package net.kuina.magitech.energy;
 
+import net.kuina.magitech.energy.custom.EtherEnergyStorage;
+import net.kuina.magitech.item.custom.RodItem;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +77,20 @@ public final class PlayerEtherEnergy {
      * （今はテスト用途なので “容量＝初期残量” でリセット実装）
      */
     public static void setCapacity(Player player, int newCapacity) {
-        CACHE.put(player.getUUID(), new EtherEnergyStorage(newCapacity));
+        PlayerEtherEnergy.CACHE.put(player.getUUID(), new EtherEnergyStorage(newCapacity));
+    }
+
+    /**
+     * プレイヤーのエネルギーを設定する。<br>
+     * DataComponent を使用してエネルギーを保存。
+     */
+    public static void setEnergy(Player player, int energy) {
+        // 右手に持っているアイテムを取得
+        ItemStack rodItem = player.getMainHandItem();
+        if (rodItem.getItem() instanceof RodItem) {
+            // RodItem にエネルギーを保存
+            RodItem.saveEnergyToComponents(rodItem, energy);
+        }
     }
 }
+

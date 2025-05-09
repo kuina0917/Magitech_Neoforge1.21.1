@@ -1,9 +1,11 @@
 package net.kuina.magitech.item.custom;
 
+import com.mojang.serialization.Codec;
 import net.kuina.magitech.energy.PlayerEtherEnergy;
 import net.kuina.magitech.entity.custom.ZoltrakProjectile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -15,12 +17,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents; // Vanillaの場合
 import static net.kuina.magitech.component.magitechcomponents.ZOLTRAK_MODE;
+
 
 public class RodItem extends Item {
 
-    /* 背面６点の発射オフセット（左右３発ずつ） */
+    // ENERGY コンポーネントを DataComponentType.Builder を使って作成
+    // ENERGYをDataComponentTypeとして定義
+    public static final DataComponentType<Integer> ENERGY = DataComponentType.<Integer>builder()
+            .persistent(Codec.INT)  // Codec.INTを使用して整数型を指定
+            .networkSynchronized(ByteBufCodecs.VAR_INT)  // ネットワーク同期
+            .build();  // buildメソッドでコンポーネントを作成
+
     private static final Vec3[] OFFSETS = {
             new Vec3(-1.4, 2.0,  0.6),
             new Vec3(-1.4, 1.8,  0.0),
@@ -31,7 +41,7 @@ public class RodItem extends Item {
     };
 
     private static final int SINGLE_COST = 10;
-    private static final int RAPID_COST  = 10;
+    private static final int RAPID_COST  = 14;
 
     public RodItem(Properties p) { super(p); }
 
@@ -118,9 +128,25 @@ public class RodItem extends Item {
                 .withStyle(ChatFormatting.RED), true);
     }
 
+    /* DataComponentを使ったエネルギー保存 */
+    public static void saveEnergyToComponents(ItemStack stack, int energy) {
+        // DataComponentを使ってエネルギーを保存
+        stack.set(ENERGY, energy); // ENERGYコンポーネントを使って保存
+    }
+
+    public static int getEnergyFromComponents(ItemStack stack) {
+        // DataComponentを使ってエネルギーを取得
+        return stack.getOrDefault(ENERGY, 0); // ENERGYコンポーネントを使って取得
+    }
+
+    /* ログイン時やアイテム使用時にエネルギーを復元する例 */
+    public static void loadEnergyOnLogin(Player player, ItemStack stack) {
+        int savedEnergy = getEnergyFromComponents(stack);  // コンポーネントからエネルギーを取得
+        PlayerEtherEnergy.setEnergy(player, savedEnergy);  // プレイヤーにエネルギーを設定
+    }
+
     /* その他オーバーライド */
     @Override public void releaseUsing(ItemStack s, Level l, LivingEntity e, int t) {}
     @Override public int  getUseDuration(ItemStack s, LivingEntity e){ return 72000; }
     @Override public UseAnim getUseAnimation(ItemStack s){ return UseAnim.BOW; }
 }
-

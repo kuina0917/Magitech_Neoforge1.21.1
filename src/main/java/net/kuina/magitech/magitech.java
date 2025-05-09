@@ -3,6 +3,7 @@ package net.kuina.magitech;
 
 import net.kuina.magitech.client.overlay.EnergyHudOverlay;
 import net.kuina.magitech.component.magitechcomponents;
+import net.kuina.magitech.energy.PlayerEventHandler;
 import net.kuina.magitech.entity.magitechentities;
 import net.kuina.magitech.client.renderer.MagicCircleRenderer;
 import net.kuina.magitech.client.renderer.MagicCircleRapidFireRenderer;
@@ -41,8 +42,6 @@ public class magitech{
     {
 
         modEventBus.addListener(this::commonSetup);
-
-
         NeoForge.EVENT_BUS.register(this);
         net.kuina.magitech.block.magitechblocks.BLOCKS.register(modEventBus);
         net.kuina.magitech.block.magitechblockentities.BLOCK_ENTITIES.register(modEventBus);
@@ -54,6 +53,7 @@ public class magitech{
         modEventBus.addListener(EnergyHudOverlay::registerGuiOverlay);
         modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        NeoForge.EVENT_BUS.register(new PlayerEventHandler());
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -98,7 +98,7 @@ public class magitech{
 
             EntityRenderers.register(
                     magitechentities.MAGIC_CIRCLE.get(),
-                            MagicCircleRenderer::new
+                    MagicCircleRenderer::new
 
             );
             EntityRenderers.register(

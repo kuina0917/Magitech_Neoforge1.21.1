@@ -1,15 +1,15 @@
 package net.kuina.magitech.energy.custom;
 
 // エネルギー（Ether）の蓄積と管理を行うシンプルなクラス
-public class EtherEnergyStorage {
+public class EtherEnergyStorage{
 
     private long energy;    // 現在のエネルギー量
     private long capacity;  // エネルギーの最大容量
 
-    // コンストラクタ：最大容量を指定して初期化し、エネルギーを満タンに設定
-    public EtherEnergyStorage(long capacity) {
-        this.capacity = capacity;
-        this.energy = capacity;  // 初期状態では最大容量までチャージ
+    // コンストラクタ：最大容量を指定して初期化
+    public EtherEnergyStorage(long energy, long capacity) {
+        this.energy = energy; // 初期エネルギー（ログイン時のエネルギー）
+        this.capacity = capacity; // 最大容量（変更なし）
     }
 
     // 現在のエネルギー量を取得

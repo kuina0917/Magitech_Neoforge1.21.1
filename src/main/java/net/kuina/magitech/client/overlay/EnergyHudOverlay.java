@@ -23,8 +23,8 @@ public class EnergyHudOverlay {
                     player.getOffhandItem().getItem() instanceof RodItem;
             if (!holdingRod) return;
 
-            int energy = PlayerEtherEnergy.getEnergy(player);
-            int max = PlayerEtherEnergy.DEFAULT_CAPACITY;
+            long energy = PlayerEtherEnergy.getEnergy(player);
+            long max = PlayerEtherEnergy.DEFAULT_CAPACITY;
             float ratio = energy / (float) max;
 
             int width = 81;

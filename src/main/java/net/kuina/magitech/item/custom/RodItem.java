@@ -26,9 +26,9 @@ public class RodItem extends Item {
 
     // ENERGY コンポーネントを DataComponentType.Builder を使って作成
     // ENERGYをDataComponentTypeとして定義
-    public static final DataComponentType<Integer> ENERGY = DataComponentType.<Integer>builder()
-            .persistent(Codec.INT)  // Codec.INTを使用して整数型を指定
-            .networkSynchronized(ByteBufCodecs.VAR_INT)  // ネットワーク同期
+    public static final DataComponentType<Long> ENERGY = DataComponentType.<Long>builder()
+            .persistent(Codec.LONG)  // Codec.LONGを使用してlong型を指定
+            .networkSynchronized(ByteBufCodecs.VAR_LONG)  // ネットワーク同期
             .build();  // buildメソッドでコンポーネントを作成
 
     private static final Vec3[] OFFSETS = {
@@ -40,8 +40,8 @@ public class RodItem extends Item {
             new Vec3( 1.5, 1.6, -0.6)
     };
 
-    private static final int SINGLE_COST = 10;
-    private static final int RAPID_COST  = 14;
+    private static final long SINGLE_COST = 10L;
+    private static final long RAPID_COST  = 14L;
 
     public RodItem(Properties p) { super(p); }
 
@@ -129,19 +129,19 @@ public class RodItem extends Item {
     }
 
     /* DataComponentを使ったエネルギー保存 */
-    public static void saveEnergyToComponents(ItemStack stack, int energy) {
+    public static void saveEnergyToComponents(ItemStack stack, long energy) {
         // DataComponentを使ってエネルギーを保存
         stack.set(ENERGY, energy); // ENERGYコンポーネントを使って保存
     }
 
-    public static int getEnergyFromComponents(ItemStack stack) {
+    public static long getEnergyFromComponents(ItemStack stack) {
         // DataComponentを使ってエネルギーを取得
-        return stack.getOrDefault(ENERGY, 0); // ENERGYコンポーネントを使って取得
+        return stack.getOrDefault(ENERGY, 0L); // ENERGYコンポーネントを使って取得
     }
 
     /* ログイン時やアイテム使用時にエネルギーを復元する例 */
     public static void loadEnergyOnLogin(Player player, ItemStack stack) {
-        int savedEnergy = getEnergyFromComponents(stack);  // コンポーネントからエネルギーを取得
+        long savedEnergy = getEnergyFromComponents(stack);  // コンポーネントからエネルギーを取得
         PlayerEtherEnergy.setEnergy(player, savedEnergy);  // プレイヤーにエネルギーを設定
     }
 

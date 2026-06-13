@@ -8,13 +8,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+
 /**
  * プレイヤーごとの EtherEnergyStorage を手軽に取得・操作するユーティリティ。
  */
 
 public final class PlayerEtherEnergy {
 
-    public static final long DEFAULT_CAPACITY = 100L;
+    public static final long DEFAULT_CAPACITY = 1000L;
 
     private static final Map<UUID, EtherEnergyStorage> CACHE = new ConcurrentHashMap<>();
 
@@ -42,7 +44,13 @@ public final class PlayerEtherEnergy {
         System.out.println("After adding energy: " + storage.getEnergy()); // 追加後のエネルギーを表示
         saveToNBT(player, storage); // 保存
     }
-
+    // アイテム使用時にエネルギー容量を増加させる
+    public static void increaseCapacity(Player player, long amount) {
+        EtherEnergyStorage storage = get(player);
+        long newCapacity = storage.getCapacity() + amount; // 現在の容量に増加分を加える
+        storage.setCapacity(newCapacity); // 新しい容量を設定
+        saveToNBT(player, storage); // 保存
+    }
     // プレイヤーのエネルギーを消費
     public static boolean tryConsume(Player player, long amount) {
         EtherEnergyStorage storage = get(player);
@@ -76,16 +84,30 @@ public final class PlayerEtherEnergy {
 
     public static void saveToNBT(Player player, EtherEnergyStorage storage) {
         CompoundTag tag = player.getPersistentData();
-        tag.putLong("etherEnergy", storage.getEnergy());
-        System.out.println("Saving energy to NBT: " + storage.getEnergy()); // NBTに保存するエネルギーを表示
+        tag.putLong("etherEnergy", storage.getEnergy());  // 現在のエネルギー量
+        tag.putLong("etherCapacity", storage.getCapacity());  // 最大容量（capacity）を保存
     }
+
     // NBTデータからエネルギーを読み込む
-    private static EtherEnergyStorage loadStorageFromNBT(Player player) {
+    public static EtherEnergyStorage loadStorageFromNBT(Player player) {
         CompoundTag tag = player.getPersistentData();
-        if (tag.contains("etherEnergy")) {
+        if (tag.contains("etherEnergy") && tag.contains("etherCapacity")) {
             long energy = tag.getLong("etherEnergy");
-            return new EtherEnergyStorage(energy, DEFAULT_CAPACITY); // energyとcapacityの両方を渡す
+            long capacity = tag.getLong("etherCapacity");
+            return new EtherEnergyStorage(energy, capacity); // energyとcapacityを渡す
         }
         return null;
     }
-}
+    public static void setCapacity(Player player, long newCapacity) {
+        EtherEnergyStorage storage = get(player);
+        storage.setCapacity(newCapacity);
+
+        // 現在のエネルギーが上限を超えていたら下げる
+        if (storage.getEnergy() > newCapacity) {
+            storage.setEnergy(newCapacity);
+        }
+
+        saveToNBT(player, storage);
+    }}
+
+

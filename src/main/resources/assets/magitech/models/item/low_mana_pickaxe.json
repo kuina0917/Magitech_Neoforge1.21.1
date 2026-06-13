@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "magitech:item/low_mana_pickaxe"
+  }
+}

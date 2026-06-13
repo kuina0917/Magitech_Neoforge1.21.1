@@ -2,6 +2,8 @@ package net.kuina.magitech.block;
 
 
 import net.kuina.magitech.block.custom.CreativeEtherEnergyBlockEntity;
+import net.kuina.magitech.block.custom.ManaProcessorBlockEntity;
+import net.kuina.magitech.block.custom.ManaTankBlockEntity;
 import net.kuina.magitech.magitech;
 import net.kuina.magitech.block.magitechblocks;
 import net.minecraft.core.registries.Registries;
@@ -17,5 +19,17 @@ public class magitechblockentities {
             BLOCK_ENTITIES.register("creative_ether_energy_block_entity", () ->
                     BlockEntityType.Builder.of(CreativeEtherEnergyBlockEntity::new,
                             magitechblocks.CREATIVE_ETHER_ENERGY_BLOCK.get()
+                    ).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ManaTankBlockEntity>> MANA_TANK_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("mana_tank_block_entity", () ->
+                    BlockEntityType.Builder.of(ManaTankBlockEntity::new,
+                            magitechblocks.MANA_TANK.get()
+                    ).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ManaProcessorBlockEntity>> MANA_PROCESSOR_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("mana_processor_block_entity", () ->
+                    BlockEntityType.Builder.of(ManaProcessorBlockEntity::new,
+                            magitechblocks.MANA_PROCESSOR.get()
                     ).build(null));
 }

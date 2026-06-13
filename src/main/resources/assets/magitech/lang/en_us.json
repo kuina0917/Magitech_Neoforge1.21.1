@@ -1,10 +1,21 @@
 {
-  "item.magitech.low_mana_ingot":"LowManaIngot",
-  "item.magitech.middle_mana_ingot":"MiddleManaIngot",
-  "item.magitech.high_mana_ingot":"HighManaIngot",
+  "item.magitech.low_mana_ingot": "LowManaIngot",
+  "item.magitech.middle_mana_ingot": "MiddleManaIngot",
+  "item.magitech.high_mana_ingot": "HighManaIngot",
+  "item.magitech.low_mana_pickaxe": "Low Mana Pickaxe",
+  "itemGroup.magitech": "Magitech",
+  "tooltip.magitech.durability": "Durability: %1$s / %2$s",
+  "tooltip.magitech.mana_stored": "Mana: %1$s / %2$s",
+  "block.magitech.mana_tank": "Mana Tank",
+  "block.magitech.mana_processor": "Mana Processor",
+  "item.magitech.portable_mana_tank": "Portable Mana Tank",
+  "msg.magitech.mana_stored": "Mana: %1$s / %2$s",
+  "msg.magitech.mana_transferred": "Transferred %1$s mana (portable tank: %2$s / %3$s)",
+  "msg.magitech.mana_filled": "Filled %1$s mana (processor: %2$s / %3$s)",
   "item.magitech.mana_bucket": "Mana Bucket",
   "block.magitech.mana_fluid": "Mana Fluid",
   "fluid.magitech.mana": "Mana",
   "block.magitech.mana": "Mana",
-  "block.magitech.lie_dirt": "liar_dirt"
+  "block.magitech.lie_dirt": "liar_dirt",
+  "block.magitech.active_magitech_block": "Active Magitech Block"
 }

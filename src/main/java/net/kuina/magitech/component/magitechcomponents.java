@@ -26,6 +26,15 @@ public class magitechcomponents {
                             .build()
             );
 
+    /** アイテムが保持するマナ量（携帯マナタンクなどで使用）。 */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Long>> MANA =
+            DATA_COMPONENT_TYPES.register("mana", () ->
+                    DataComponentType.<Long>builder()
+                            .persistent(Codec.LONG)                  // NBT保存用Codec
+                            .networkSynchronized(ByteBufCodecs.VAR_LONG) // ネットワーク同期用Codec
+                            .build()
+            );
+
 
     public static void register(IEventBus bus) {
         DATA_COMPONENT_TYPES.register(bus);

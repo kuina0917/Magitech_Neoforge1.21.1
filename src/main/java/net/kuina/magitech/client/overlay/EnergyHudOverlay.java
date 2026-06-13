@@ -19,12 +19,8 @@ public class EnergyHudOverlay {
             Player player = mc.player;
             if (player == null) return;
 
-            boolean holdingRod = player.getMainHandItem().getItem() instanceof RodItem ||
-                    player.getOffhandItem().getItem() instanceof RodItem;
-            if (!holdingRod) return;
-
             long energy = PlayerEtherEnergy.getEnergy(player);
-            long max = PlayerEtherEnergy.DEFAULT_CAPACITY;
+            long max = PlayerEtherEnergy.get(player).getCapacity();
             float ratio = energy / (float) max;
 
             int width = 81;
@@ -33,11 +29,21 @@ public class EnergyHudOverlay {
             int screenWidth = mc.getWindow().getGuiScaledWidth();
             int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-            int x = screenWidth - width - 5;
-            int y = screenHeight - height - 5;
+            int hotbarRightX = (screenWidth / 2) + 91;
+            int x = hotbarRightX + 5; // ホットバーの右に配置
+            int y = screenHeight - 20; // ホットバーに合わせた高さ
 
             guiGraphics.fill(x, y, x + width, y + height, 0x80000000);
             guiGraphics.fill(x + 1, y + 1, x + 1 + Math.round((width - 2) * ratio), y + height - 1, 0xFF00FFFF);
+            guiGraphics.fill(x, y, x + width, y + height, 0x80000000); // 背景
+            guiGraphics.fill(x + 1, y + 1, x + 1 + Math.round((width - 2) * ratio), y + height - 1, 0xFF00FFFF); // バー本体
+
+// 数値テキスト（中央に表示）
+            String manaText = energy + " / " + max;
+            int textWidth = mc.font.width(manaText);
+            int textX = x + (width - textWidth) / 2;
+            int textY = y + (height - mc.font.lineHeight) / 2;
+            guiGraphics.drawString(mc.font, manaText, textX, textY, 0xFFFFFFFF, true); // 白文字で描画
         });
     }
 }

@@ -43,8 +43,8 @@ public class ManaProcessorMenu extends AbstractContainerMenu {
         this.data = data;
         this.access = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
 
-        // 機械のスロット
-        addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_INPUT, 56, 35));
+        // 機械のスロット（背景テクスチャの入力枠は中心が x=57 なので、16x16 のアイテムが中央に来るよう x=49 に置く）
+        addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_INPUT, 49, 35));
         // 出力スロットは取り出し専用（isItemValid が false なので設置は不可）
         addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_OUTPUT, 116, 35));
 

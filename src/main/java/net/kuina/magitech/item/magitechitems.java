@@ -39,6 +39,8 @@ public class magitechitems {
         public static final DeferredItem<Item> MIDDLE_MANA_INGOT = register("middle_mana_ingot", Item::new);
         public static final DeferredItem<Item> HIGH_MANA_INGOT = register("high_mana_ingot", Item::new);
         public static final DeferredItem<Item> MANA_CRYSTAL = register("mana_crystal", ManaCrystalItem::new);
+        public static final DeferredItem<Item> MAGITECH_GUIDE = register("magitech_guide",
+                        props -> new net.kuina.magitech.item.custom.MagitechGuideItem(props.stacksTo(1)));
 
         /** 低級マナつるはし用のツールティア（修理素材は淡輝マナインゴット） */
         public static final Tier LOW_MANA_TIER = new Tier() {

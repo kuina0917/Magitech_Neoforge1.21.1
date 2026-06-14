@@ -31,6 +31,7 @@ public class magitechtabs {
                         output.accept(magitechitems.MANA_CRYSTAL.get());
 
                         // 道具・装備
+                        output.accept(magitechitems.MAGITECH_GUIDE.get());
                         output.accept(magitechitems.CRYSTAL_ROD.get());
                         output.accept(magitechitems.LOW_MANA_PICKAXE.get());
 

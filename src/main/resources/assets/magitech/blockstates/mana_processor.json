@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=north": {
       "model": "magitech:block/mana_processor"
+    },
+    "facing=south": {
+      "model": "magitech:block/mana_processor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "magitech:block/mana_processor",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "magitech:block/mana_processor",
+      "y": 90
     }
   }
 }

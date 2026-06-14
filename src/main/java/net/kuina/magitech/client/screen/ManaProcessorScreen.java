@@ -1,28 +1,49 @@
 package net.kuina.magitech.client.screen;
 
 import net.kuina.magitech.menu.ManaProcessorMenu;
+import net.kuina.magitech.util.ModUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
  * マナ加工機の GUI 画面。
  *
- * <p>専用のテクスチャ画像を用意せずに済むよう、背景・スロット枠・進捗矢印・マナバーを
- * すべて単色の矩形で描画する（後でテクスチャ化したい場合は {@link #renderBg} を差し替える）。</p>
+ * <p>背景・スロット枠・矢印は {@code textures/gui/mana_processor.png}（176x166）を
+ * そのまま貼り付けて描画する。マナバーは {@code textures/gui/mana_bar.png}（12x48）を
+ * 下から溜まるように部分描画し、進捗矢印には半透明の緑を重ねて進行度を表す。</p>
  */
 public class ManaProcessorScreen extends AbstractContainerScreen<ManaProcessorMenu> {
 
-    // 各色（ARGB）
-    private static final int COLOR_PANEL = 0xFFC6C6C6; // 背景パネル
-    private static final int COLOR_SLOT = 0xFF8B8B8B;  // スロット枠
-    private static final int COLOR_BAR_BG = 0xFF373737; // バー背景
-    private static final int COLOR_MANA = 0xFF29B6F6;  // マナ（水色）
-    private static final int COLOR_PROGRESS = 0xFF66BB6A; // 進捗（緑）
+    /** 背景テクスチャ（GUI 全体、176x166）。 */
+    private static final ResourceLocation BG_TEXTURE = ModUtil.rl("textures/gui/mana_processor.png");
+    /** マナバーの中身テクスチャ（12x48）。 */
+    private static final ResourceLocation MANA_BAR_TEXTURE = ModUtil.rl("textures/gui/mana_bar.png");
+    /** バニラのかまどテクスチャ（256x256）。空の矢印（下地）を流用する。 */
+    private static final ResourceLocation FURNACE_TEXTURE = ModUtil.mc("textures/gui/container/furnace.png");
+    /** かまどの「焼成中の矢印」スプライト（1.21 ではスプライト化されている）。色付けして進捗表示に使う。 */
+    private static final ResourceLocation BURN_PROGRESS_SPRITE = ModUtil.mc("container/furnace/burn_progress");
 
+    // マナバーの空枠は背景テクスチャに描かれている。中身を流し込む領域（GUI 左上からの相対座標）。
+    private static final int MANA_BAR_X = 14;
+    private static final int MANA_BAR_Y = 18;
+    private static final int MANA_BAR_WIDTH = 12;
+    private static final int MANA_BAR_HEIGHT = 48;
+
+    // 進捗矢印を描く位置（GUI 左上からの相対座標）。かまどの矢印（24x16）を流用する。
+    private static final int ARROW_X = 79;
+    private static final int ARROW_Y = 34;
     private static final int ARROW_WIDTH = 24;
-    private static final int MANA_BAR_HEIGHT = 52;
+    private static final int ARROW_HEIGHT = 16;
+    // かまどテクスチャ内の UV：空の矢印 (79,34) を下地として使う。
+    private static final int ARROW_EMPTY_U = 79;
+    private static final int ARROW_EMPTY_V = 34;
+    // 進行中の矢印に重ねる色（マナバーと同じ水色 0x29B6F6）。スプライトに乗算で着色される。
+    private static final float PROGRESS_R = 0x29 / 255.0f;
+    private static final float PROGRESS_G = 0xB6 / 255.0f;
+    private static final float PROGRESS_B = 0xF6 / 255.0f;
 
     public ManaProcessorScreen(ManaProcessorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -43,44 +64,30 @@ public class ManaProcessorScreen extends AbstractContainerScreen<ManaProcessorMe
         int x = this.leftPos;
         int y = this.topPos;
 
-        // 背景パネル
-        guiGraphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, COLOR_PANEL);
+        // 背景（パネル・スロット枠・矢印・マナバーの空枠がすべて含まれる）
+        guiGraphics.blit(BG_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
-        // スロット枠（入力・出力・プレイヤー在庫）
-        drawSlot(guiGraphics, x + 56, y + 35);  // 入力
-        drawSlot(guiGraphics, x + 116, y + 35); // 出力
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlot(guiGraphics, x + 8 + col * 18, y + 84 + row * 18);
-            }
-        }
-        for (int col = 0; col < 9; col++) {
-            drawSlot(guiGraphics, x + 8 + col * 18, y + 142);
-        }
-
-        // 進捗矢印（入力→出力の間、緑のバーが伸びる）
-        int arrowX = x + 80;
-        int arrowY = y + 39;
-        guiGraphics.fill(arrowX, arrowY, arrowX + ARROW_WIDTH, arrowY + 8, COLOR_BAR_BG);
-        int progress = this.menu.getProgressScaled(ARROW_WIDTH);
-        if (progress > 0) {
-            guiGraphics.fill(arrowX, arrowY, arrowX + progress, arrowY + 8, COLOR_PROGRESS);
-        }
-
-        // マナバー（左端、下から上へ溜まる縦バー）
-        int barX = x + 12;
-        int barTop = y + 17;
-        guiGraphics.fill(barX, barTop, barX + 12, barTop + MANA_BAR_HEIGHT, COLOR_BAR_BG);
+        // マナバー：下から上へ溜まるように、テクスチャの下側 filled ピクセル分だけを描く
         int filled = this.menu.getManaScaled(MANA_BAR_HEIGHT);
         if (filled > 0) {
-            guiGraphics.fill(barX, barTop + (MANA_BAR_HEIGHT - filled), barX + 12, barTop + MANA_BAR_HEIGHT, COLOR_MANA);
+            int drawY = y + MANA_BAR_Y + (MANA_BAR_HEIGHT - filled);
+            int v = MANA_BAR_HEIGHT - filled;
+            guiGraphics.blit(MANA_BAR_TEXTURE, x + MANA_BAR_X, drawY, 0, v,
+                    MANA_BAR_WIDTH, filled, MANA_BAR_WIDTH, MANA_BAR_HEIGHT);
         }
-    }
 
-    /** 16x16 アイテム位置に合わせて 18x18 のスロット枠を描く。 */
-    private void drawSlot(GuiGraphics guiGraphics, int slotX, int slotY) {
-        guiGraphics.fill(slotX - 1, slotY - 1, slotX + 17, slotY + 17, COLOR_SLOT);
-        guiGraphics.fill(slotX, slotY, slotX + 16, slotY + 16, COLOR_BAR_BG);
+        // 進捗矢印：まず空の矢印（グレー）を下地として描く
+        int arrowX = x + ARROW_X;
+        int arrowY = y + ARROW_Y;
+        guiGraphics.blit(FURNACE_TEXTURE, arrowX, arrowY, ARROW_EMPTY_U, ARROW_EMPTY_V,
+                ARROW_WIDTH, ARROW_HEIGHT, 256, 256);
+        // その上に、進行度ぶんだけ「焼成中の矢印」スプライトを白色に着色（1.0fで元の色を維持）して左から重ねる
+        int progress = this.menu.getProgressScaled(ARROW_WIDTH);
+        if (progress > 0) {
+            guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            guiGraphics.blitSprite(BURN_PROGRESS_SPRITE, ARROW_WIDTH, ARROW_HEIGHT, 0, 0,
+                    arrowX, arrowY, progress, ARROW_HEIGHT);
+        }
     }
 
     @Override
@@ -88,9 +95,9 @@ public class ManaProcessorScreen extends AbstractContainerScreen<ManaProcessorMe
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // マナバーにカーソルを合わせたら現在量をツールチップ表示
-        int barX = this.leftPos + 12;
-        int barTop = this.topPos + 17;
-        if (mouseX >= barX && mouseX < barX + 12 && mouseY >= barTop && mouseY < barTop + MANA_BAR_HEIGHT) {
+        int barX = this.leftPos + MANA_BAR_X;
+        int barTop = this.topPos + MANA_BAR_Y;
+        if (mouseX >= barX && mouseX < barX + MANA_BAR_WIDTH && mouseY >= barTop && mouseY < barTop + MANA_BAR_HEIGHT) {
             guiGraphics.renderTooltip(this.font,
                     Component.translatable("tooltip.magitech.mana_stored", this.menu.getManaStored(), this.menu.getMaxMana()),
                     mouseX, mouseY);

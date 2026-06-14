@@ -54,6 +54,17 @@ public class magitech {
         magitechcomponents.register(modEventBus);
         magitechtabs.register(modEventBus);
         magitechmenus.register(modEventBus);
+        net.kuina.magitech.worldgen.magitechfeatures.register(modEventBus);
+
+        // ネットワークパケットの登録
+        modEventBus.addListener((net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent event) -> {
+            final net.neoforged.neoforge.network.registration.PayloadRegistrar registrar = event.registrar(MOD_ID);
+            registrar.playToClient(
+                    net.kuina.magitech.network.SyncManaTargetsPayload.TYPE,
+                    net.kuina.magitech.network.SyncManaTargetsPayload.STREAM_CODEC,
+                    net.kuina.magitech.network.ManaExtractorPayloadHandler::handleSyncTargets
+            );
+        });
 
         // HUD
         modEventBus.addListener(EnergyHudOverlay::registerGuiOverlay);
@@ -107,6 +118,9 @@ public class magitech {
             event.register(
                     magitechmenus.MANA_PROCESSOR_MENU.get(),
                     net.kuina.magitech.client.screen.ManaProcessorScreen::new);
+            event.register(
+                    magitechmenus.MANA_EXTRACTOR_MENU.get(),
+                    net.kuina.magitech.client.screen.ManaExtractorScreen::new);
         }
     }
 }

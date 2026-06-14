@@ -37,6 +37,12 @@ public class magitechblocks {
         public static final DeferredBlock<ManaProcessorBlock> MANA_PROCESSOR = register("mana_processor",
                         ManaProcessorBlock::new);
 
+        // マルチブロック：マナ抽出機 (Mana Extractor)
+        public static final DeferredBlock<Block> MANA_EXTRACTOR_CASING = register("mana_extractor_casing",
+                        props -> new Block(BlockBehaviour.Properties.of().strength(4f).sound(METAL)));
+        public static final DeferredBlock<net.kuina.magitech.block.custom.ManaExtractorCoreBlock> MANA_EXTRACTOR_CORE = register("mana_extractor_core",
+                        net.kuina.magitech.block.custom.ManaExtractorCoreBlock::new);
+
         private static <B extends Block> DeferredBlock<B> register(String name,
                         Function<BlockBehaviour.Properties, ? extends B> supplier) {
                 return BLOCKS.registerBlock(name, supplier, BlockBehaviour.Properties.of());

@@ -32,4 +32,10 @@ public class magitechblockentities {
                     BlockEntityType.Builder.of(ManaProcessorBlockEntity::new,
                             magitechblocks.MANA_PROCESSOR.get()
                     ).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<net.kuina.magitech.block.custom.ManaExtractorCoreBlockEntity>> MANA_EXTRACTOR_CORE_ENTITY =
+            BLOCK_ENTITIES.register("mana_extractor_core_entity", () ->
+                    BlockEntityType.Builder.of(net.kuina.magitech.block.custom.ManaExtractorCoreBlockEntity::new,
+                            magitechblocks.MANA_EXTRACTOR_CORE.get()
+                    ).build(null));
 }

@@ -23,6 +23,11 @@ public class magitechmenus {
             MENUS.register("mana_processor",
                     () -> IMenuTypeExtension.create(net.kuina.magitech.menu.ManaProcessorMenu::new));
 
+    /** マナ抽出機の GUI。 */
+    public static final DeferredHolder<MenuType<?>, MenuType<net.kuina.magitech.menu.ManaExtractorMenu>> MANA_EXTRACTOR_MENU =
+            MENUS.register("mana_extractor",
+                    () -> IMenuTypeExtension.create(net.kuina.magitech.menu.ManaExtractorMenu::new));
+
     public static void register(IEventBus bus) {
         MENUS.register(bus);
     }

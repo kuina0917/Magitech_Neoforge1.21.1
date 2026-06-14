@@ -10,10 +10,10 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.kuina.magitech.block.base.MachineBlock;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -40,7 +40,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
  * 携帯マナタンクを持って右クリックすれば手動でも補充できる。
  * 何も持たずに右クリックすると GUI が開く。</p>
  */
-public class ManaProcessorBlock extends Block implements EntityBlock {
+public class ManaProcessorBlock extends MachineBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 

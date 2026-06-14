@@ -99,6 +99,11 @@ public class magitechitems {
         /** マナ加工機（ブロックアイテム）。 */
         public static final DeferredItem<Item> MANA_PROCESSOR = block(magitechblocks.MANA_PROCESSOR);
 
+        /** マルチブロック：マナ抽出機のケーシング（ブロックアイテム）。 */
+        public static final DeferredItem<Item> MANA_EXTRACTOR_CASING = block(magitechblocks.MANA_EXTRACTOR_CASING);
+        /** マルチブロック：マナ抽出機のコア（ブロックアイテム）。 */
+        public static final DeferredItem<Item> MANA_EXTRACTOR_CORE = block(magitechblocks.MANA_EXTRACTOR_CORE);
+
         private static <I extends Item> DeferredItem<I> register(String name,
                         Function<Item.Properties, ? extends I> sup) {
                 return ITEMS.registerItem(name, sup, new Item.Properties());

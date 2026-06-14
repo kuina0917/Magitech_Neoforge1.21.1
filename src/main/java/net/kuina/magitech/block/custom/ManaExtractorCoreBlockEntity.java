@@ -1,17 +1,16 @@
 package net.kuina.magitech.block.custom;
 
+import net.kuina.magitech.block.base.ManaContainerBlockEntity;
 import net.kuina.magitech.block.magitechblockentities;
 import net.kuina.magitech.block.magitechblocks;
 import net.kuina.magitech.capability.ManaCapabilities;
 import net.kuina.magitech.energy.IManaStorage;
 import net.kuina.magitech.energy.ManaTransfer;
-import net.kuina.magitech.energy.custom.EtherEnergyStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -24,14 +23,19 @@ import java.util.Set;
  * 3x3x3 の構造体を認識すると、大気中から極少量のマナを抽出する。
  * 周囲の「住所（座標）」を登録して、特定地点へマナを無線転送できる。
  */
-public class ManaExtractorCoreBlockEntity extends BlockEntity {
+public class ManaExtractorCoreBlockEntity extends ManaContainerBlockEntity {
     private int checkTimer = 0;
     private int scanTimer = 0;
     
-    private static final long GEN_RATE = 1L;
+    public static final long GEN_RATE = 1L;
     private static final long MAX_CAPACITY = 10_000L;
     
-    private final EtherEnergyStorage mana = new EtherEnergyStorage(0, MAX_CAPACITY);
+    // 統計: 1秒(20tick)あたりの生成量・転送量
+    private long manaGenPerSecond = 0;
+    private long manaTransferPerSecond = 0;
+    private int statTimer = 0;
+    private long accumulatedGen = 0;
+    private long accumulatedTransfer = 0;
     
     // 転送先として有効化されている座標リスト
     private final Set<BlockPos> targetAddresses = new HashSet<>();
@@ -39,7 +43,7 @@ public class ManaExtractorCoreBlockEntity extends BlockEntity {
     private final List<BlockPos> foundAddresses = new ArrayList<>();
 
     public ManaExtractorCoreBlockEntity(BlockPos pos, BlockState state) {
-        super(magitechblockentities.MANA_EXTRACTOR_CORE_ENTITY.get(), pos, state);
+        super(magitechblockentities.MANA_EXTRACTOR_CORE_ENTITY.get(), pos, state, MAX_CAPACITY);
     }
 
     public void tick() {
@@ -66,13 +70,24 @@ public class ManaExtractorCoreBlockEntity extends BlockEntity {
         if (getBlockState().getValue(ManaExtractorCoreBlock.FORMED)) {
             // 3. マナの抽出
             if (mana.getManaStored() < MAX_CAPACITY) {
+                long before = mana.getManaStored();
                 mana.insertMana(GEN_RATE, false);
+                accumulatedGen += mana.getManaStored() - before;
             }
             
             // 4. 登録された「住所」へマナを転送
             if (mana.getManaStored() > 0) {
                 transferManaToAddresses();
             }
+        }
+
+        // 5. 統計更新（1秒ごと）
+        if (++statTimer >= 20) {
+            statTimer = 0;
+            manaGenPerSecond = accumulatedGen;
+            manaTransferPerSecond = accumulatedTransfer;
+            accumulatedGen = 0;
+            accumulatedTransfer = 0;
         }
     }
 
@@ -91,17 +106,47 @@ public class ManaExtractorCoreBlockEntity extends BlockEntity {
     }
 
     private void transferManaToAddresses() {
+        if (targetAddresses.isEmpty()) return;
+
+        int targets = targetAddresses.size();
+        long totalToSend = Math.min(10L * targets, mana.getManaStored());
+        if (totalToSend <= 0) return;
+
+        long base = totalToSend / targets;
+        if (base <= 0) return;
+
+        long remainder = totalToSend % targets;
+
+        int idx = 0;
         for (BlockPos targetPos : targetAddresses) {
             IManaStorage targetStorage = level.getCapability(ManaCapabilities.MANA_BLOCK, targetPos, null);
-            if (targetStorage != null) {
-                // 1回につき最大 10 マナを転送（複数箇所ある場合は分散される）
-                ManaTransfer.move(mana, targetStorage, 10);
+            if (targetStorage == null || !targetStorage.canReceive()) { idx++; continue; }
+
+            long share = base + (idx < remainder ? 1 : 0);
+            idx++;
+
+            long taken = mana.extractMana(share, false);
+            if (taken <= 0) continue;
+
+            long accepted = targetStorage.insertMana(taken, true);
+            if (accepted > 0) {
+                targetStorage.insertMana(accepted, false);
             }
+            long refund = taken - accepted;
+            if (refund > 0) {
+                mana.insertMana(refund, false);
+            }
+            accumulatedTransfer += accepted;
         }
     }
 
     public List<BlockPos> getFoundAddresses() { return foundAddresses; }
     public boolean isTargetEnabled(BlockPos pos) { return targetAddresses.contains(pos); }
+    
+    public long getManaStored() { return mana.getManaStored(); }
+    public long getMaxCapacity() { return MAX_CAPACITY; }
+    public long getManaGenPerSecond() { return manaGenPerSecond; }
+    public long getManaTransferPerSecond() { return manaTransferPerSecond; }
     
     public void toggleTarget(BlockPos pos) {
         if (targetAddresses.contains(pos)) {
@@ -115,9 +160,6 @@ public class ManaExtractorCoreBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putLong("Mana", mana.getManaStored());
-
-        
         ListTag list = new ListTag();
         for (BlockPos pos : targetAddresses) {
             CompoundTag posTag = new CompoundTag();
@@ -130,8 +172,6 @@ public class ManaExtractorCoreBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        mana.setEnergy(tag.getLong("Mana"));
-        
         targetAddresses.clear();
         if (tag.contains("Targets", Tag.TAG_LIST)) {
             ListTag list = tag.getList("Targets", Tag.TAG_COMPOUND);

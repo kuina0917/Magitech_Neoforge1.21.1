@@ -1,8 +1,8 @@
 package net.kuina.magitech.block.custom;
 
+import net.kuina.magitech.block.base.ManaContainerBlockEntity;
 import net.kuina.magitech.block.magitechblockentities;
 import net.kuina.magitech.energy.IManaStorage;
-import net.kuina.magitech.energy.custom.EtherEnergyStorage;
 import net.kuina.magitech.item.magitechitems;
 import net.kuina.magitech.menu.ManaProcessorMenu;
 import net.kuina.magitech.util.ManaHelper;
@@ -18,7 +18,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  *   <li>マナ：内部バッファに貯め、隣接タンクからの自動吸引／携帯タンクからの手動補充で補給</li>
  * </ul>
  */
-public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvider {
+public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implements MenuProvider {
 
     /* ---------- 調整用の定数 ---------- */
     public static final long MANA_CAPACITY = 50_000L; // マナバッファ容量
@@ -54,45 +53,11 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            // 入力スロットは鉄インゴットのみ。出力スロットには外部から入れさせない。
             return slot == SLOT_INPUT && stack.is(Items.IRON_INGOT);
         }
     };
 
     /* ---------- マナ ---------- */
-    private final EtherEnergyStorage mana = new EtherEnergyStorage(0, MANA_CAPACITY);
-
-    /** 外部公開用：受け取り専用（他装置に吸い取られないよう extract は不可）。 */
-    private final IManaStorage manaPort = new IManaStorage() {
-        @Override
-        public long getManaStored() {
-            return mana.getManaStored();
-        }
-
-        @Override
-        public long getMaxMana() {
-            return mana.getMaxMana();
-        }
-
-        @Override
-        public long insertMana(long amount, boolean simulate) {
-            long result = mana.insertMana(amount, simulate);
-            if (!simulate && result > 0) {
-                setChanged();
-            }
-            return result;
-        }
-
-        @Override
-        public long extractMana(long amount, boolean simulate) {
-            return 0; // 外部へは渡さない
-        }
-
-        @Override
-        public boolean canExtract() {
-            return false;
-        }
-    };
 
     /* ---------- 加工の進捗 ---------- */
     private int progress = 0;
@@ -124,7 +89,8 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
     };
 
     public ManaProcessorBlockEntity(BlockPos pos, BlockState state) {
-        super(magitechblockentities.MANA_PROCESSOR_BLOCK_ENTITY.get(), pos, state);
+        super(magitechblockentities.MANA_PROCESSOR_BLOCK_ENTITY.get(), pos, state, MANA_CAPACITY);
+        this.manaPort = createReceiveOnlyPort();
     }
 
     /* ---------- 外部からアクセスするための窓口 ---------- */
@@ -149,7 +115,8 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
         ManaHelper.pullFromNeighbors(level, pos, self.manaPort, PULL_PER_SIDE);
 
         // ② 加工処理
-        if (self.canProcess() && self.mana.getManaStored() >= MANA_PER_TICK) {
+        boolean hasMana = self.mana.getManaStored() >= MANA_PER_TICK;
+        if (self.canProcess() && hasMana) {
             self.mana.extractMana(MANA_PER_TICK, false);
             self.progress++;
             if (self.progress >= MAX_PROGRESS) {
@@ -157,8 +124,8 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
                 self.progress = 0;
             }
             self.setChanged();
-        } else if (self.progress != 0) {
-            // 条件を満たさなくなったら進捗をリセット
+        } else if (!self.canProcess() && self.progress != 0) {
+            // 材料が足りなくなったらだけ進捗リセット（マナ不足は継続可能）
             self.progress = 0;
             self.setChanged();
         }
@@ -209,7 +176,6 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Inventory", inventory.serializeNBT(registries));
-        tag.putLong("Mana", mana.getManaStored());
         tag.putInt("Progress", progress);
     }
 
@@ -219,7 +185,6 @@ public class ManaProcessorBlockEntity extends BlockEntity implements MenuProvide
         if (tag.contains("Inventory")) {
             inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
         }
-        mana.setEnergy(tag.getLong("Mana"));
         progress = tag.getInt("Progress");
     }
 }

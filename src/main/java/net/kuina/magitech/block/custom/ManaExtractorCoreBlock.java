@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.kuina.magitech.block.base.MachineBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * マルチブロック「マナ抽出機」のコア。
  * 3x3x3 のケーシングに囲まれることで起動する。
  */
-public class ManaExtractorCoreBlock extends Block implements EntityBlock {
+public class ManaExtractorCoreBlock extends MachineBlock {
     public static final BooleanProperty FORMED = BooleanProperty.create("formed");
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 

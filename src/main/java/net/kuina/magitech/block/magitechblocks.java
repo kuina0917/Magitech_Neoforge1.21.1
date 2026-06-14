@@ -39,7 +39,7 @@ public class magitechblocks {
 
         // マルチブロック：マナ抽出機 (Mana Extractor)
         public static final DeferredBlock<Block> MANA_EXTRACTOR_CASING = register("mana_extractor_casing",
-                        props -> new Block(BlockBehaviour.Properties.of().strength(4f).sound(METAL)));
+                        props -> new Block(BlockBehaviour.Properties.of().strength(4f).requiresCorrectToolForDrops().sound(METAL)));
         public static final DeferredBlock<net.kuina.magitech.block.custom.ManaExtractorCoreBlock> MANA_EXTRACTOR_CORE = register("mana_extractor_core",
                         net.kuina.magitech.block.custom.ManaExtractorCoreBlock::new);
 

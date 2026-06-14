@@ -1,31 +1,23 @@
 package net.kuina.magitech.block.custom;
 
+import net.kuina.magitech.block.base.MachineBlock;
 import net.kuina.magitech.capability.ManaCapabilities;
-import net.kuina.magitech.component.magitechcomponents;
 import net.kuina.magitech.energy.IManaStorage;
 import net.kuina.magitech.energy.ManaTransfer;
-import net.kuina.magitech.item.magitechitems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * マナ貯蔵タンク。
@@ -34,7 +26,7 @@ import java.util.List;
  * 動作確認用に、手に持った携帯マナタンクで右クリックするとタンク→アイテムへ
  * マナを移し、素手で右クリックすると現在の貯蔵量を表示する。</p>
  */
-public class ManaTankBlock extends Block implements EntityBlock {
+public class ManaTankBlock extends MachineBlock {
 
     /** 1 回の操作で移動させるマナ量。 */
     private static final long TRANSFER_PER_USE = 1_000L;
@@ -46,37 +38,6 @@ public class ManaTankBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ManaTankBlockEntity(pos, state);
-    }
-
-    /** 設置時：アイテムに保存されていたマナ量をタンク本体へ引き継ぐ。 */
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
-            ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.isClientSide) {
-            return;
-        }
-        long mana = stack.getOrDefault(magitechcomponents.MANA.get(), 0L);
-        if (mana > 0 && level.getBlockEntity(pos) instanceof ManaTankBlockEntity tank) {
-            tank.getManaStorage().insertMana(mana, false);
-        }
-    }
-
-    /** 破壊時：タンク本体のマナ量をドロップするアイテムへ引き継ぐ。 */
-    @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        List<ItemStack> drops = super.getDrops(state, params); // ルートテーブル（適正ツール判定など）はそのまま利用
-        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof ManaTankBlockEntity tank) {
-            long mana = tank.getManaStorage().getManaStored();
-            if (mana > 0) {
-                for (ItemStack drop : drops) {
-                    if (drop.is(magitechitems.MANA_TANK.get())) {
-                        drop.set(magitechcomponents.MANA.get(), mana);
-                    }
-                }
-            }
-        }
-        return drops;
     }
 
     @Override

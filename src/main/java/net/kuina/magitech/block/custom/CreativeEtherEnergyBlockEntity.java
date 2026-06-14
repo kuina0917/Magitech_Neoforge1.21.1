@@ -4,9 +4,6 @@ import net.kuina.magitech.block.magitechblockentities;
 import net.kuina.magitech.energy.IEtherEnergyReceiver;
 import net.kuina.magitech.energy.PlayerEtherEnergy;
 import net.minecraft.core.BlockPos;
-
-import net.kuina.magitech.energy.PlayerEtherEnergy;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;

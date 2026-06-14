@@ -41,5 +41,8 @@
   "msg.magitech.multiblock_formed": "マルチブロック構造を認識しました！",
   "msg.magitech.multiblock_incomplete": "構造が不完全です（周囲 3x3x3 をケーシングで囲ってください）",
   "msg.magitech.multiblock_active": "抽出機は正常に稼働しています。",
-  "gui.magitech.extractor.targets": "転送先（住所）リスト"
+  "gui.magitech.extractor.targets": "転送先（住所）リスト",
+  "gui.magitech.extractor.mana_stored": "マナ: %1$s / %2$s",
+  "gui.magitech.extractor.generating": "生成中: %1$s マナ/秒",
+  "gui.magitech.extractor.transferring": "転送中: %1$s マナ/秒"
 }

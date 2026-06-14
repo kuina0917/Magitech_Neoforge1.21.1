@@ -1,11 +1,10 @@
 package net.kuina.magitech.block.custom;
 
+import net.kuina.magitech.block.base.MachineBlock;
 import net.kuina.magitech.block.magitechblockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class CreativeEtherEnergyBlock extends Block implements EntityBlock {
+public class CreativeEtherEnergyBlock extends MachineBlock {
 
     public CreativeEtherEnergyBlock(BlockBehaviour.Properties props) {
         super(props);

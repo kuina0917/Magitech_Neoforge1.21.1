@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "magitech:mana_stone","magitech:mana_cobblestone"
+    "magitech:mana_stone","magitech:mana_cobblestone","magitech:mana_tank","magitech:mana_processor","magitech:mana_extractor_casing","magitech:mana_extractor_core","magitech:active_magitech_block"
   ]
 }

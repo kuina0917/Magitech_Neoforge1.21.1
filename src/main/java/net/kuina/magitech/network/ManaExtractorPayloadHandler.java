@@ -9,7 +9,8 @@ public class ManaExtractorPayloadHandler {
     public static void handleSyncTargets(final SyncManaTargetsPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().screen instanceof ManaExtractorScreen screen) {
-                screen.updateSyncData(payload.foundPositions(), payload.enabledStates());
+                screen.updateSyncData(payload.foundPositions(), payload.enabledStates(),
+                        payload.manaStored(), payload.manaGenRate(), payload.manaTransferRate());
             }
         });
     }

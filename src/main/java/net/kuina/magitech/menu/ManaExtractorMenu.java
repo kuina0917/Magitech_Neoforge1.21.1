@@ -32,7 +32,8 @@ public class ManaExtractorMenu extends AbstractContainerMenu {
             }
             
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, 
-                new net.kuina.magitech.network.SyncManaTargetsPayload(found, states));
+                new net.kuina.magitech.network.SyncManaTargetsPayload(found, states,
+                        blockEntity.getManaStored(), blockEntity.getManaGenPerSecond(), blockEntity.getManaTransferPerSecond()));
         }
     }
 

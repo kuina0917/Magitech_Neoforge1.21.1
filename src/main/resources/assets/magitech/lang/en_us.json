@@ -41,5 +41,8 @@
   "msg.magitech.multiblock_formed": "Multiblock structure formed!",
   "msg.magitech.multiblock_incomplete": "Structure incomplete (3x3x3 casing required)",
   "msg.magitech.multiblock_active": "The extractor is operating normally.",
-  "gui.magitech.extractor.targets": "Transfer Addresses"
+  "gui.magitech.extractor.targets": "Transfer Addresses",
+  "gui.magitech.extractor.mana_stored": "Mana: %1$s / %2$s",
+  "gui.magitech.extractor.generating": "Generating: %1$s mana/s",
+  "gui.magitech.extractor.transferring": "Transferring: %1$s mana/s"
 }

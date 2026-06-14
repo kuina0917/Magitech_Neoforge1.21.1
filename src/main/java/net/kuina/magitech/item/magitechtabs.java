@@ -40,6 +40,8 @@ public class magitechtabs {
                         output.accept(magitechitems.PORTABLE_MANA_TANK.get());
                         output.accept(magitechitems.MANA_TANK.get());
                         output.accept(magitechitems.MANA_PROCESSOR.get());
+                        output.accept(magitechitems.MANA_EXTRACTOR_CASING.get());
+                        output.accept(magitechitems.MANA_EXTRACTOR_CORE.get());
                         output.accept(magitechitems.CREATIVE_ETHER_ENERGY_BLOCK.get());
 
                         // ブロック

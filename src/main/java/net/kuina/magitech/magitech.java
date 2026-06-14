@@ -54,6 +54,8 @@ public class magitech {
         magitechcomponents.register(modEventBus);
         magitechtabs.register(modEventBus);
         magitechmenus.register(modEventBus);
+        net.kuina.magitech.recipe.ModRecipes.SERIALIZERS.register(modEventBus);
+        net.kuina.magitech.recipe.ModRecipes.TYPES.register(modEventBus);
         net.kuina.magitech.worldgen.magitechfeatures.register(modEventBus);
 
         // ネットワークパケットの登録
@@ -124,3 +126,4 @@ public class magitech {
         }
     }
 }
+ださい

@@ -24,6 +24,14 @@ repositories {
         content {
             includeGroup("software.bernie.geckolib")}
     }
+    maven {
+        name = "JEI"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
 }
 
 
@@ -121,6 +129,13 @@ configurations {
 dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.5.1"
 
+    // JEI
+    compileOnly "mezz.jei:jei-1.21.1-neoforge:19.27.0.340"
+    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.27.0.340"
+
+    // Jade
+    compileOnly "maven.modrinth:jade:15.10.5+neoforge"
+    localRuntime "maven.modrinth:jade:15.10.5+neoforge"
 
 }
 

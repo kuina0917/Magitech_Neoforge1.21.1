@@ -44,5 +44,11 @@
   "gui.magitech.extractor.targets": "転送先（住所）リスト",
   "gui.magitech.extractor.mana_stored": "マナ: %1$s / %2$s",
   "gui.magitech.extractor.generating": "生成中: %1$s マナ/秒",
-  "gui.magitech.extractor.transferring": "転送中: %1$s マナ/秒"
+  "gui.magitech.extractor.transferring": "転送中: %1$s マナ/秒",
+  "jei.magitech.mana_cost": "%d マナ",
+  "jei.magitech.duration_seconds": "%d 秒",
+  "config.jade.plugin_magitech.mana_data": "マナストレージ & 進行度",
+  "tooltip.magitech.progress": "進行度: %d%%",
+  "msg.magitech.multiblock_formed": "形成済み",
+  "msg.magitech.multiblock_not_formed": "未形成"
 }

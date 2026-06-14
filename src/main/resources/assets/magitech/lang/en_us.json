@@ -44,5 +44,11 @@
   "gui.magitech.extractor.targets": "Transfer Addresses",
   "gui.magitech.extractor.mana_stored": "Mana: %1$s / %2$s",
   "gui.magitech.extractor.generating": "Generating: %1$s mana/s",
-  "gui.magitech.extractor.transferring": "Transferring: %1$s mana/s"
+  "gui.magitech.extractor.transferring": "Transferring: %1$s mana/s",
+  "jei.magitech.mana_cost": "%d Mana",
+  "jei.magitech.duration_seconds": "%d s",
+  "config.jade.plugin_magitech.mana_data": "Mana Storage & Progress",
+  "tooltip.magitech.progress": "Progress: %d%%",
+  "msg.magitech.multiblock_formed": "Formed",
+  "msg.magitech.multiblock_not_formed": "Not Formed"
 }

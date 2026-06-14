@@ -3,8 +3,10 @@ package net.kuina.magitech.block.custom;
 import net.kuina.magitech.block.base.ManaContainerBlockEntity;
 import net.kuina.magitech.block.magitechblockentities;
 import net.kuina.magitech.energy.IManaStorage;
-import net.kuina.magitech.item.magitechitems;
 import net.kuina.magitech.menu.ManaProcessorMenu;
+import net.kuina.magitech.recipe.ManaProcessorRecipe;
+import net.kuina.magitech.recipe.ManaProcessorRecipeInput;
+import net.kuina.magitech.recipe.ModRecipes;
 import net.kuina.magitech.util.ManaHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -17,29 +19,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * マナ加工機のブロックエンティティ。
- *
- * <p>鉄インゴット＋貯蔵マナを消費して淡輝マナインゴットを生産する。</p>
- *
- * <ul>
- *   <li>入力スロット(0)：鉄インゴットのみ受け付ける</li>
- *   <li>出力スロット(1)：淡輝マナインゴットを出す（プレイヤーは入れられない）</li>
- *   <li>マナ：内部バッファに貯め、隣接タンクからの自動吸引／携帯タンクからの手動補充で補給</li>
- * </ul>
- */
+import java.util.Optional;
+
 public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implements MenuProvider {
 
     /* ---------- 調整用の定数 ---------- */
-    public static final long MANA_CAPACITY = 50_000L; // マナバッファ容量
-    public static final long MANA_PER_TICK = 20L;     // 加工中に毎tick消費するマナ
-    public static final int MAX_PROGRESS = 100;       // 1 回の加工にかかる tick 数
-    private static final long PULL_PER_SIDE = 200L;   // 隣接から毎tick引き込む最大量/面
+    public static final long MANA_CAPACITY = 50_000L;
+    public static final long MANA_PER_TICK = 20L;
+    public static final int MAX_PROGRESS = 100;
 
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_OUTPUT = 1;
@@ -49,11 +41,14 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+            if (slot == SLOT_INPUT) {
+                currentRecipe = null;
+            }
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == SLOT_INPUT && stack.is(Items.IRON_INGOT);
+            return slot == SLOT_INPUT;
         }
     };
 
@@ -61,8 +56,9 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
 
     /* ---------- 加工の進捗 ---------- */
     private int progress = 0;
+    @Nullable
+    private ManaProcessorRecipe currentRecipe = null;
 
-    /** GUI へ progress / mana を同期するためのデータ窓口。 */
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -99,7 +95,6 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
         return inventory;
     }
 
-    /** Capability／隣接補給で使う受け取り窓口。 */
     public IManaStorage getManaPort() {
         return manaPort;
     }
@@ -112,9 +107,20 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
 
     public static void tick(ServerLevel level, BlockPos pos, BlockState state, ManaProcessorBlockEntity self) {
         // ① 隣接ブロック（タンクなど）からマナを自動補給
-        ManaHelper.pullFromNeighbors(level, pos, self.manaPort, PULL_PER_SIDE);
+        ManaHelper.pullFromNeighbors(level, pos, self.manaPort, 200L);
 
-        // ② 加工処理
+        // ② レシピ解決
+        if (self.currentRecipe == null) {
+            ItemStack input = self.inventory.getStackInSlot(SLOT_INPUT);
+            if (!input.isEmpty()) {
+                Optional<RecipeHolder<ManaProcessorRecipe>> holder = level.getRecipeManager()
+                        .getRecipeFor(ModRecipes.MANA_PROCESSING_TYPE.get(),
+                                new ManaProcessorRecipeInput(input), level);
+                self.currentRecipe = holder.map(RecipeHolder::value).orElse(null);
+            }
+        }
+
+        // ③ 加工処理
         boolean hasMana = self.mana.getManaStored() >= MANA_PER_TICK;
         if (self.canProcess() && hasMana) {
             self.mana.extractMana(MANA_PER_TICK, false);
@@ -125,35 +131,39 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
             }
             self.setChanged();
         } else if (!self.canProcess() && self.progress != 0) {
-            // 材料が足りなくなったらだけ進捗リセット（マナ不足は継続可能）
             self.progress = 0;
             self.setChanged();
         }
     }
 
-    /** 加工できる状態か（入力に鉄、出力に空き）。 */
     private boolean canProcess() {
+        if (currentRecipe == null) return false;
+
         ItemStack input = inventory.getStackInSlot(SLOT_INPUT);
-        if (!input.is(Items.IRON_INGOT) || input.isEmpty()) {
-            return false;
-        }
+        if (input.isEmpty()) return false;
+
         ItemStack output = inventory.getStackInSlot(SLOT_OUTPUT);
-        if (output.isEmpty()) {
-            return true;
-        }
-        // 同じアイテムで、まだ積める余地があるか
-        return output.is(magitechitems.LOW_MANA_INGOT.get())
-                && output.getCount() < output.getMaxStackSize();
+        ItemStack result = currentRecipe.getResult();
+
+        if (output.isEmpty()) return true;
+
+        return ItemStack.isSameItemSameComponents(output, result)
+                && output.getCount() + result.getCount() <= output.getMaxStackSize();
     }
 
-    /** 1 回分の加工を実行（鉄を 1 消費し、淡輝マナインゴットを 1 出力）。 */
     private void craft() {
+        if (currentRecipe == null) return;
+
+        ItemStack result = currentRecipe.getResult().copy();
+        currentRecipe = null;
+
         inventory.extractItem(SLOT_INPUT, 1, false);
+
         ItemStack output = inventory.getStackInSlot(SLOT_OUTPUT);
         if (output.isEmpty()) {
-            inventory.setStackInSlot(SLOT_OUTPUT, new ItemStack(magitechitems.LOW_MANA_INGOT.get(), 1));
+            inventory.setStackInSlot(SLOT_OUTPUT, result);
         } else {
-            output.grow(1);
+            output.grow(result.getCount());
         }
     }
 

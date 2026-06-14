@@ -1,0 +1,12 @@
+{
+  "type": "magitech:mana_processing",
+  "ingredient": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "magitech:low_mana_ingot",
+    "count": 1
+  },
+  "manaCost": 2000,
+  "processTime": 100
+}

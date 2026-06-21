@@ -1,6 +1,6 @@
 package net.kuina.magitech.network;
 
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,7 +20,7 @@ public record SyncManaTargetsPayload(
         long manaGenRate,
         long manaTransferRate
 ) implements CustomPacketPayload {
-    public static final Type<SyncManaTargetsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(magitech.MOD_ID, "sync_mana_targets"));
+    public static final Type<SyncManaTargetsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Magitech.MOD_ID, "sync_mana_targets"));
 
     public static final StreamCodec<FriendlyByteBuf, SyncManaTargetsPayload> STREAM_CODEC = StreamCodec.of(
             (buf, payload) -> {

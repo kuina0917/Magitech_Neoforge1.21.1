@@ -1,6 +1,6 @@
 package net.kuina.magitech.item.custom;
 
-import net.kuina.magitech.component.magitechcomponents;
+import net.kuina.magitech.component.MagitechDataComponents;
 import net.kuina.magitech.energy.IManaStorage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,7 @@ import java.util.List;
  * 携帯マナタンク。
  * プレイヤーが持ち歩けるマナの貯蔵アイテム。
  *
- * <p>マナ量は {@link magitechcomponents#MANA} コンポーネントに保存する。
+ * <p>マナ量は {@link MagitechDataComponents#MANA} コンポーネントに保存する。
  * 内部の {@link ManaStorage} を Capability として公開することで、
  * 装置やタンクから {@link net.kuina.magitech.energy.ManaTransfer} 経由でマナを注入できる。</p>
  * - テクスチャは流用プレースホルダです（タンク=active_magitech_block、携帯=mana_crystal）。専用テクスチャを用意したら models/block/mana_tank.json・models/item/portable_mana_tank.json のパスを差し替えてください。
@@ -44,7 +44,7 @@ public class PortableManaTankItem extends Item {
             TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
-        long stored = stack.getOrDefault(magitechcomponents.MANA.get(), 0L);
+        long stored = stack.getOrDefault(MagitechDataComponents.MANA.get(), 0L);
         tooltipComponents.add(Component.translatable("tooltip.magitech.mana_stored", stored, CAPACITY)
                 .withStyle(ChatFormatting.AQUA));
     }
@@ -62,11 +62,11 @@ public class PortableManaTankItem extends Item {
         }
 
         private long get() {
-            return stack.getOrDefault(magitechcomponents.MANA.get(), 0L);
+            return stack.getOrDefault(MagitechDataComponents.MANA.get(), 0L);
         }
 
         private void set(long value) {
-            stack.set(magitechcomponents.MANA.get(), Math.max(0, Math.min(value, CAPACITY)));
+            stack.set(MagitechDataComponents.MANA.get(), Math.max(0, Math.min(value, CAPACITY)));
         }
 
         @Override

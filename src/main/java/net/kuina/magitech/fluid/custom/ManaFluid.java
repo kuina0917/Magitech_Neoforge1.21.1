@@ -1,9 +1,9 @@
 package net.kuina.magitech.fluid.custom;
 
-import net.kuina.magitech.block.magitechblocks;
-import net.kuina.magitech.fluid.magitechfluids;
-import net.kuina.magitech.fluidtype.magitechfluidtypes;
-import net.kuina.magitech.item.magitechitems;
+import net.kuina.magitech.block.MagitechBlocks;
+import net.kuina.magitech.fluid.MagitechFluids;
+import net.kuina.magitech.fluidtype.MagitechFluidTypes;
+import net.kuina.magitech.item.MagitechItems;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -26,12 +26,12 @@ public abstract class ManaFluid extends BaseFlowingFluid {
      * FluidType・水源・流れ・バケツ・設置ブロックなどを紐付ける。
      */
     public static final Properties PROPERTIES = new Properties(
-            () -> magitechfluidtypes.MANA_FLUID_TYPE.get(), // この液体の種類（FluidType）
-            () -> magitechfluids.MANA.get(),                // 水源となる Fluid
-            () -> magitechfluids.FLOWING_MANA.get())        // 流れとなる Fluid
+            () -> MagitechFluidTypes.MANA_FLUID_TYPE.get(), // この液体の種類（FluidType）
+            () -> MagitechFluids.MANA.get(),                // 水源となる Fluid
+            () -> MagitechFluids.FLOWING_MANA.get())        // 流れとなる Fluid
             .explosionResistance(100f)                          // 爆発耐性
-            .bucket(() -> magitechitems.MANA_BUCKET.get())      // バケツアイテム
-            .block(() -> (LiquidBlock) magitechblocks.MANA.get()); // ワールドに置かれるブロック
+            .bucket(() -> MagitechItems.MANA_BUCKET.get())      // バケツアイテム
+            .block(() -> (LiquidBlock) MagitechBlocks.MANA.get()); // ワールドに置かれるブロック
 
     private ManaFluid() {
         super(PROPERTIES);

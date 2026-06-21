@@ -43,18 +43,19 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 public class ManaProcessorBlock extends MachineBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty LIT = BlockStateProperties.LIT;
 
     /** 携帯タンクから 1 回の右クリックで注入する量。 */
     private static final long MANUAL_FILL_PER_USE = 2_000L;
 
     public ManaProcessorBlock(BlockBehaviour.Properties properties) {
         super(properties.strength(3.5f).requiresCorrectToolForDrops());
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(LIT, false);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class ManaProcessorBlock extends MachineBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, LIT);
     }
 
     @Override

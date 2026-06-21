@@ -1,6 +1,6 @@
 package net.kuina.magitech.research;
 
-import net.kuina.magitech.item.magitechitems;
+import net.kuina.magitech.item.MagitechItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -15,18 +15,18 @@ public class ResearchManager {
 
     static {
         // サンプルの研究ツリー構築
-        addNode(new ResearchNode("root", "research.magitech.root", new ItemStack(magitechitems.MANA_STONE.get()), 0, 0));
+        addNode(new ResearchNode("root", "research.magitech.root", new ItemStack(MagitechItems.MANA_STONE.get()), 0, 0));
         
-        addNode(new ResearchNode("mana_basics", "research.magitech.mana_basics", new ItemStack(magitechitems.LOW_MANA_INGOT.get()), 60, -30)
+        addNode(new ResearchNode("mana_basics", "research.magitech.mana_basics", new ItemStack(MagitechItems.LOW_MANA_INGOT.get()), 60, -30)
                 .addParent("root"));
         
-        addNode(new ResearchNode("processing", "research.magitech.processing", new ItemStack(magitechitems.MANA_PROCESSOR.get()), 120, 0)
+        addNode(new ResearchNode("processing", "research.magitech.processing", new ItemStack(MagitechItems.MANA_PROCESSOR.get()), 120, 0)
                 .addParent("mana_basics"));
         
-        addNode(new ResearchNode("advanced_tools", "research.magitech.advanced_tools", new ItemStack(magitechitems.LOW_MANA_PICKAXE.get()), 120, -60)
+        addNode(new ResearchNode("advanced_tools", "research.magitech.advanced_tools", new ItemStack(MagitechItems.LOW_MANA_PICKAXE.get()), 120, -60)
                 .addParent("mana_basics"));
 
-        addNode(new ResearchNode("storage", "research.magitech.storage", new ItemStack(magitechitems.MANA_TANK.get()), 60, 30)
+        addNode(new ResearchNode("storage", "research.magitech.storage", new ItemStack(MagitechItems.MANA_TANK.get()), 60, 30)
                 .addParent("root"));
     }
 

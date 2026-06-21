@@ -1,7 +1,7 @@
 package net.kuina.magitech.menu;
 
 import net.kuina.magitech.block.custom.ManaProcessorBlockEntity;
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,12 +17,12 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 /**
  * マナ加工機の GUI（サーバー・クライアント共通のロジック）。
  *
- * <p>スロット構成：0=入力（鉄）、1=出力（淡輝マナインゴット）、2〜37=プレイヤーの持ち物。
+ * <p>スロット構成：0=入力、1=出力、2=触媒、3〜38=プレイヤーの持ち物。
  * progress と mana は {@link ContainerData} 経由でクライアントへ同期される。</p>
  */
 public class ManaProcessorMenu extends AbstractContainerMenu {
 
-    private static final int MACHINE_SLOT_COUNT = 2;
+    private static final int MACHINE_SLOT_COUNT = 3;
 
     public final ManaProcessorBlockEntity blockEntity;
     private final ContainerLevelAccess access;
@@ -33,19 +33,30 @@ public class ManaProcessorMenu extends AbstractContainerMenu {
         this(containerId, playerInventory,
                 getBlockEntity(playerInventory, extraData.readBlockPos()),
                 new SimpleContainerData(4));
+        // クライアント側：BEのContainerDataでSimpleContainerDataを初期化（初回同期待ち回避）
+        ManaProcessorBlockEntity be = this.blockEntity;
+        if (be != null) {
+            ContainerData src = be.getData();
+            for (int i = 0; i < src.getCount(); i++) {
+                this.data.set(i, src.get(i));
+            }
+        }
     }
 
     /** サーバー側：実際の BE と ContainerData を受け取る。 */
     public ManaProcessorMenu(int containerId, Inventory playerInventory, ManaProcessorBlockEntity blockEntity,
             ContainerData data) {
-        super(magitechmenus.MANA_PROCESSOR_MENU.get(), containerId);
+        super(MagitechMenus.MANA_PROCESSOR_MENU.get(), containerId);
         this.blockEntity = blockEntity;
         this.data = data;
         this.access = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
 
-        // 機械のスロット（背景テクスチャの入力枠は中心が x=57 なので、16x16 のアイテムが中央に来るよう x=49 に置く）
-        addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_INPUT, 49, 35));
-        // 出力スロットは取り出し専用（isItemValid が false なので設置は不可）
+        // 機械のスロット
+        // 入力スロット
+        addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_INPUT, 56, 17));
+        // カタリストスロット（追加分）
+        addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_CATALYST, 56, 53));
+        // 出力スロット
         addSlot(new SlotItemHandler(blockEntity.getInventory(), ManaProcessorBlockEntity.SLOT_OUTPUT, 116, 35));
 
         // プレイヤーの持ち物（3 段）
@@ -80,17 +91,17 @@ public class ManaProcessorMenu extends AbstractContainerMenu {
 
     /** マナ量を 0〜barHeight の長さに換算（マナバーの描画用）。 */
     public int getManaScaled(int barHeight) {
-        int stored = data.get(2);
-        int max = data.get(3);
-        return (max != 0) ? stored * barHeight / max : 0;
+        long stored = getManaStored();
+        long max = getMaxMana();
+        return (max != 0) ? (int) (stored * barHeight / max) : 0;
     }
 
-    public int getManaStored() {
-        return data.get(2);
+    public long getManaStored() {
+        return (long) data.get(2);
     }
 
-    public int getMaxMana() {
-        return data.get(3);
+    public long getMaxMana() {
+        return (long) data.get(3);
     }
 
     /* ---------- Shift クリックでの移動 ---------- */
@@ -114,8 +125,8 @@ public class ManaProcessorMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else {
-            // プレイヤー → 機械（入力スロットへ）。受け付けなければ持ち物内で移動
-            if (!moveItemStackTo(stack, ManaProcessorBlockEntity.SLOT_INPUT, ManaProcessorBlockEntity.SLOT_INPUT + 1, false)) {
+            // プレイヤー → 機械（入力スロットまたはカタリストスロットへ）
+            if (!moveItemStackTo(stack, 0, 1, false) && !moveItemStackTo(stack, 1, 2, false)) {
                 return ItemStack.EMPTY;
             }
         }
@@ -130,6 +141,6 @@ public class ManaProcessorMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(access, player, magitechblocks.MANA_PROCESSOR.get());
+        return stillValid(access, player, MagitechBlocks.MANA_PROCESSOR.get());
     }
 }

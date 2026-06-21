@@ -1,6 +1,6 @@
 package net.kuina.magitech.menu;
 
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.bus.api.IEventBus;
@@ -13,10 +13,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * メニューを追加したら、ここに 1 件登録し、クライアント側で
  * {@code MenuScreens.register} に対応する Screen を結び付ける。
  */
-public class magitechmenus {
+public class MagitechMenus {
 
     public static final DeferredRegister<MenuType<?>> MENUS =
-            DeferredRegister.create(Registries.MENU, magitech.MOD_ID);
+            DeferredRegister.create(Registries.MENU, Magitech.MOD_ID);
 
     /** マナ加工機の GUI。 */
     public static final DeferredHolder<MenuType<?>, MenuType<net.kuina.magitech.menu.ManaProcessorMenu>> MANA_PROCESSOR_MENU =
@@ -27,6 +27,11 @@ public class magitechmenus {
     public static final DeferredHolder<MenuType<?>, MenuType<net.kuina.magitech.menu.ManaExtractorMenu>> MANA_EXTRACTOR_MENU =
             MENUS.register("mana_extractor",
                     () -> IMenuTypeExtension.create(net.kuina.magitech.menu.ManaExtractorMenu::new));
+
+    /** マナタンクの GUI。 */
+    public static final DeferredHolder<MenuType<?>, MenuType<net.kuina.magitech.menu.ManaTankMenu>> MANA_TANK_MENU =
+            MENUS.register("mana_tank",
+                    () -> IMenuTypeExtension.create(net.kuina.magitech.menu.ManaTankMenu::new));
 
     public static void register(IEventBus bus) {
         MENUS.register(bus);

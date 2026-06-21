@@ -1,8 +1,10 @@
 package net.kuina.magitech.block.custom;
 
-import net.kuina.magitech.block.magitechblockentities;
+import net.kuina.magitech.block.MagitechBlockEntities;
 import net.kuina.magitech.energy.IEtherEnergyReceiver;
+import net.kuina.magitech.energy.IManaStorage;
 import net.kuina.magitech.energy.PlayerEtherEnergy;
+import net.kuina.magitech.util.ManaHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -14,8 +16,17 @@ public class CreativeEtherEnergyBlockEntity extends BlockEntity {
 
     private static final int RADIUS = 5;
 
+    private static final IManaStorage INFINITE_MANA = new IManaStorage() {
+        @Override public long getManaStored() { return Long.MAX_VALUE; }
+        @Override public long getMaxMana() { return Long.MAX_VALUE; }
+        @Override public long insertMana(long amount, boolean simulate) { return amount; }
+        @Override public long extractMana(long amount, boolean simulate) { return amount; }
+        @Override public boolean canReceive() { return false; }
+        @Override public boolean canExtract() { return true; }
+    };
+
     public CreativeEtherEnergyBlockEntity(BlockPos pos, BlockState state) {
-        super(magitechblockentities.CREATIVE_ETHER_ENERGY_BLOCK_ENTITY.get(), pos, state);
+        super(MagitechBlockEntities.CREATIVE_ETHER_ENERGY_BLOCK_ENTITY.get(), pos, state);
     }
 
     public static void tick(ServerLevel level, BlockPos pos, BlockState state,
@@ -43,4 +54,7 @@ public class CreativeEtherEnergyBlockEntity extends BlockEntity {
                     PlayerEtherEnergy.addEnergy(player, amountToAdd); // エネルギーを加算
                     System.out.println("Energy added to player: " + amountToAdd); // ログで確認
                 });
+
+        // ③ 隣接ブロックにマナを無限供給（毎tick最大1000/side）
+        ManaHelper.pushToNeighbors(level, pos, INFINITE_MANA, 1000L);
     }}

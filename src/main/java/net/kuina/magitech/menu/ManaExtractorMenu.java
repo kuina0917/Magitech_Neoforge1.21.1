@@ -1,7 +1,7 @@
 package net.kuina.magitech.menu;
 
 import net.kuina.magitech.block.custom.ManaExtractorCoreBlockEntity;
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,7 +39,7 @@ public class ManaExtractorMenu extends AbstractContainerMenu {
 
     private final Player player;
     public ManaExtractorMenu(int containerId, Inventory inv, BlockEntity entity) {
-        super(magitechmenus.MANA_EXTRACTOR_MENU.get(), containerId);
+        super(MagitechMenus.MANA_EXTRACTOR_MENU.get(), containerId);
         this.blockEntity = (ManaExtractorCoreBlockEntity) entity;
         this.levelAccess = ContainerLevelAccess.create(entity.getLevel(), entity.getBlockPos());
         this.player = inv.player;
@@ -63,7 +63,7 @@ public class ManaExtractorMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.levelAccess, player, net.kuina.magitech.block.magitechblocks.MANA_EXTRACTOR_CORE.get());
+        return stillValid(this.levelAccess, player, net.kuina.magitech.block.MagitechBlocks.MANA_EXTRACTOR_CORE.get());
     }
 
     public ManaExtractorCoreBlockEntity getBlockEntity() {

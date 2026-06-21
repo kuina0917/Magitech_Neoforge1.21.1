@@ -21,7 +21,7 @@ import net.minecraft.core.component.DataComponentType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import static net.kuina.magitech.component.magitechcomponents.ZOLTRAK_MODE;
+import static net.kuina.magitech.component.MagitechDataComponents.ZOLTRAK_MODE;
 
 public class RodItem extends Item {
     public static final DataComponentType<Long> ENERGY = DataComponentType.<Long>builder()
@@ -103,8 +103,8 @@ public class RodItem extends Item {
                 SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS,
                 25f, 4f + lvl.random.nextFloat() * 0.2f);
 
-        long remaining = PlayerEtherEnergy.getEnergy(pl);
-        long capacity = PlayerEtherEnergy.get(pl).getCapacity();
+        long remaining = PlayerEtherEnergy.getTotalMana(pl);
+        long capacity = PlayerEtherEnergy.getTotalCapacity(pl);
         pl.displayClientMessage(Component.literal(" マナ: ")
                 .append(Component.literal(remaining + " / " + capacity).withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" (-" + cost + ")").withStyle(ChatFormatting.RED)), true);

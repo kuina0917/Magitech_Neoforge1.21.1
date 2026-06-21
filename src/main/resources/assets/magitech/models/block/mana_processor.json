@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "top": "magitech:block/mana_processor_side",
-    "front": "magitech:block/mana_processor",
-    "side": "magitech:block/mana_processor_side"
+    "top": "minecraft:block/blast_furnace_top",
+    "front": "magitech:block/mana_processor_off",
+    "side": "minecraft:block/blast_furnace_side"
   }
 }

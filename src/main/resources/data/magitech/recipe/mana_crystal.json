@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "ISI",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "magitech:low_mana_ingot"
+    },
+    "S": {
+      "item": "magitech:mana_stone"
+    }
+  },
+  "result": {
+    "id": "magitech:mana_crystal",
+    "count": 1
+  }
+}

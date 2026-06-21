@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    "ICI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "magitech:low_mana_ingot"
+    },
+    "C": {
+      "item": "magitech:mana_crystal"
+    }
+  },
+  "result": {
+    "id": "magitech:machine_core",
+    "count": 1
+  }
+}

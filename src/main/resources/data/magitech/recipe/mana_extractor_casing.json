@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SIS",
+    "I I",
+    "SIS"
+  ],
+  "key": {
+    "S": {
+      "item": "magitech:mana_stone"
+    },
+    "I": {
+      "item": "magitech:low_mana_ingot"
+    }
+  },
+  "result": {
+    "id": "magitech:mana_extractor_casing",
+    "count": 4
+  }
+}

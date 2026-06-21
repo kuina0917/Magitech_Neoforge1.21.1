@@ -1,6 +1,6 @@
 package net.kuina.magitech.item.custom;
 
-import net.kuina.magitech.fluidtype.magitechfluidtypes;
+import net.kuina.magitech.fluidtype.MagitechFluidTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -119,6 +119,6 @@ public class ManaPickaxeItem extends PickaxeItem {
      * サブクラスで条件を変えたい場合はここを上書きする。
      */
     protected boolean isTouchingMana(Entity entity) {
-        return entity.isInFluidType((fluidType, height) -> magitechfluidtypes.isManaFluidType(fluidType));
+        return entity.isInFluidType((fluidType, height) -> MagitechFluidTypes.isManaFluidType(fluidType));
     }
 }

@@ -1,7 +1,8 @@
 package net.kuina.magitech.block.custom;
 
 import net.kuina.magitech.block.base.ManaContainerBlockEntity;
-import net.kuina.magitech.block.magitechblockentities;
+import net.kuina.magitech.block.MagitechBlockEntities;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.kuina.magitech.energy.IManaStorage;
 import net.kuina.magitech.menu.ManaProcessorMenu;
 import net.kuina.magitech.recipe.ManaProcessorRecipe;
@@ -9,6 +10,7 @@ import net.kuina.magitech.recipe.ManaProcessorRecipeInput;
 import net.kuina.magitech.recipe.ModRecipes;
 import net.kuina.magitech.util.ManaHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,6 +22,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
@@ -35,20 +38,21 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
 
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_OUTPUT = 1;
+    public static final int SLOT_CATALYST = 2;
 
     /* ---------- 在庫（アイテム） ---------- */
-    private final ItemStackHandler inventory = new ItemStackHandler(2) {
+    private final ItemStackHandler inventory = new ItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot == SLOT_INPUT) {
+            if (slot == SLOT_INPUT || slot == SLOT_CATALYST) {
                 currentRecipe = null;
             }
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == SLOT_INPUT;
+            return slot == SLOT_INPUT || slot == SLOT_CATALYST;
         }
     };
 
@@ -59,12 +63,17 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
     @Nullable
     private ManaProcessorRecipe currentRecipe = null;
 
+    /* ---------- アップグレード（隣接ブロック） ---------- */
+    private int effectiveMaxProgress = MAX_PROGRESS;
+    private long effectiveManaPerTick = MANA_PER_TICK;
+    private int upgradeCooldown = 0;
+
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> progress;
-                case 1 -> MAX_PROGRESS;
+                case 1 -> effectiveMaxProgress;
                 case 2 -> (int) mana.getManaStored();
                 case 3 -> (int) mana.getMaxMana();
                 default -> 0;
@@ -85,7 +94,7 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
     };
 
     public ManaProcessorBlockEntity(BlockPos pos, BlockState state) {
-        super(magitechblockentities.MANA_PROCESSOR_BLOCK_ENTITY.get(), pos, state, MANA_CAPACITY);
+        super(MagitechBlockEntities.MANA_PROCESSOR_BLOCK_ENTITY.get(), pos, state, MANA_CAPACITY);
         this.manaPort = createReceiveOnlyPort();
     }
 
@@ -109,7 +118,13 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
         // ① 隣接ブロック（タンクなど）からマナを自動補給
         ManaHelper.pullFromNeighbors(level, pos, self.manaPort, 200L);
 
-        // ② レシピ解決
+        // ② アップグレードスキャン（20tick毎）
+        if (--self.upgradeCooldown <= 0) {
+            self.upgradeCooldown = 20;
+            self.scanUpgrades(level, pos);
+        }
+
+        // ③ レシピ解決
         if (self.currentRecipe == null) {
             ItemStack input = self.inventory.getStackInSlot(SLOT_INPUT);
             if (!input.isEmpty()) {
@@ -120,12 +135,18 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
             }
         }
 
-        // ③ 加工処理
-        boolean hasMana = self.mana.getManaStored() >= MANA_PER_TICK;
-        if (self.canProcess() && hasMana) {
-            self.mana.extractMana(MANA_PER_TICK, false);
+        // ④ 加工処理
+        boolean hasMana = self.mana.getManaStored() >= self.effectiveManaPerTick;
+        boolean processing = self.canProcess() && hasMana;
+        
+        if (state.getValue(ManaProcessorBlock.LIT) != processing) {
+            level.setBlock(pos, state.setValue(ManaProcessorBlock.LIT, processing), 3);
+        }
+
+        if (processing) {
+            self.mana.extractMana(self.effectiveManaPerTick, false);
             self.progress++;
-            if (self.progress >= MAX_PROGRESS) {
+            if (self.progress >= self.effectiveMaxProgress) {
                 self.craft();
                 self.progress = 0;
             }
@@ -134,6 +155,23 @@ public class ManaProcessorBlockEntity extends ManaContainerBlockEntity implement
             self.progress = 0;
             self.setChanged();
         }
+    }
+
+    private void scanUpgrades(ServerLevel level, BlockPos pos) {
+        int speedPct = 0;
+        long manaReduction = 0;
+        for (Direction dir : Direction.values()) {
+            Block neighbor = level.getBlockState(pos.relative(dir)).getBlock();
+            if (neighbor == MagitechBlocks.MANA_TANK.get()) {
+                speedPct += 25;
+            } else if (neighbor == MagitechBlocks.MANA.get()) {
+                manaReduction += 5;
+            } else if (neighbor == MagitechBlocks.ACTIVE_MAGITECH_BLOCK.get()) {
+                speedPct += 25;
+            }
+        }
+        this.effectiveMaxProgress = Math.max(MAX_PROGRESS - speedPct, 1);
+        this.effectiveManaPerTick = Math.max(MANA_PER_TICK - manaReduction, 1);
     }
 
     private boolean canProcess() {

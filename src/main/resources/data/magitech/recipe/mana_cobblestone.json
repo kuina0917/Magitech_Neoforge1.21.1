@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CIC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:cobblestone"
+    },
+    "I": {
+      "item": "magitech:low_mana_ingot"
+    }
+  },
+  "result": {
+    "id": "magitech:mana_cobblestone",
+    "count": 8
+  }
+}

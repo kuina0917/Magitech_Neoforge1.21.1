@@ -1,7 +1,7 @@
 package net.kuina.magitech.fluidtype;
 
 import net.kuina.magitech.fluidtype.custom.ManaFluidType;
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -20,10 +20,10 @@ import java.util.function.Supplier;
  * {@link #isManaFluidType} でまとめて判定できる。今後マナ液体を増やしても、
  * つるはしの回復処理など利用側のコードを変更せずに自動で対応できる。</p>
  */
-public class magitechfluidtypes {
+public class MagitechFluidTypes {
 
     public static final DeferredRegister<FluidType> FLUID_TYPE =
-            DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, magitech.MOD_ID);
+            DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, Magitech.MOD_ID);
 
     /** これまでに登録された「マナ系」液体タイプの一覧。 */
     private static final List<DeferredHolder<FluidType, FluidType>> MANA_FLUID_TYPES = new ArrayList<>();

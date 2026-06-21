@@ -1,18 +1,14 @@
 package net.kuina.magitech.energy;
 
+import net.kuina.magitech.capability.ManaCapabilities;
 import net.kuina.magitech.energy.custom.EtherEnergyStorage;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-
-
-/**
- * プレイヤーごとの EtherEnergyStorage を手軽に取得・操作するユーティリティ。
- */
 
 public final class PlayerEtherEnergy {
 
@@ -20,56 +16,57 @@ public final class PlayerEtherEnergy {
 
     private static final Map<UUID, EtherEnergyStorage> CACHE = new ConcurrentHashMap<>();
 
-    // プレイヤーのエネルギーを取得
     public static EtherEnergyStorage get(Player player) {
         UUID uuid = player.getUUID();
         EtherEnergyStorage storage = CACHE.get(uuid);
         if (storage == null) {
-            // NBT からエネルギーを読み込む
             storage = loadStorageFromNBT(player);
             if (storage == null) {
-                // エネルギーが保存されていない場合は 0 に設定して初期化
-                storage = new EtherEnergyStorage(0, DEFAULT_CAPACITY);  // 初期エネルギーは 0 に設定
+                storage = new EtherEnergyStorage(0, DEFAULT_CAPACITY);
             }
             CACHE.put(uuid, storage);
         }
         return storage;
     }
 
-    // プレイヤーのエネルギーを追加
     public static void addEnergy(Player player, long amount) {
         EtherEnergyStorage storage = get(player);
-        System.out.println("Before adding energy: " + storage.getEnergy()); // 追加前のエネルギーを表示
-        storage.addEnergy(amount); // エネルギー追加
-        System.out.println("After adding energy: " + storage.getEnergy()); // 追加後のエネルギーを表示
-        saveToNBT(player, storage); // 保存
+        storage.addEnergy(amount);
+        saveToNBT(player, storage);
     }
-    // アイテム使用時にエネルギー容量を増加させる
+
     public static void increaseCapacity(Player player, long amount) {
         EtherEnergyStorage storage = get(player);
-        long newCapacity = storage.getCapacity() + amount; // 現在の容量に増加分を加える
-        storage.setCapacity(newCapacity); // 新しい容量を設定
-        saveToNBT(player, storage); // 保存
-    }
-    // プレイヤーのエネルギーを消費
-    public static boolean tryConsume(Player player, long amount) {
-        EtherEnergyStorage storage = get(player);
-        if (storage.getEnergy() >= amount) {
-            storage.consume(amount); // エネルギー消費
-            saveToNBT(player, storage); // 保存
-            return true;
-        }
-        return false;
+        long newCapacity = storage.getCapacity() + amount;
+        storage.setCapacity(newCapacity);
+        saveToNBT(player, storage);
     }
 
-    // プレイヤーのエネルギーを設定
+    public static boolean tryConsume(Player player, long amount) {
+        if (!hasManaContainer(player)) return false;
+        if (getTotalMana(player) < amount) return false;
+
+        long remaining = amount;
+
+        EtherEnergyStorage storage = get(player);
+        long fromPersonal = Math.min(remaining, storage.getEnergy());
+        if (fromPersonal > 0) {
+            storage.consume(fromPersonal);
+            remaining -= fromPersonal;
+            saveToNBT(player, storage);
+        }
+
+        remaining = extractFromContainers(player, remaining);
+
+        return true;
+    }
+
     public static void setEnergy(Player player, long energy) {
         EtherEnergyStorage storage = get(player);
-        storage.addEnergy(energy - storage.getEnergy()); // 設定
-        saveToNBT(player, storage); // 保存
+        storage.addEnergy(energy - storage.getEnergy());
+        saveToNBT(player, storage);
     }
 
-    // プレイヤーのエネルギー量を取得
     public static long getEnergy(Player player) {
         EtherEnergyStorage storage = get(player);
         return storage.getEnergy();
@@ -77,37 +74,116 @@ public final class PlayerEtherEnergy {
 
     public static void resetEnergy(Player player) {
         EtherEnergyStorage storage = get(player);
-        long amountToAdd = storage.getCapacity() - storage.getEnergy(); // 回復する量を計算
-        storage.addEnergy(amountToAdd); // 必要な分だけ加算
-        saveToNBT(player, storage); // NBTに保存
+        long amountToAdd = storage.getCapacity() - storage.getEnergy();
+        storage.addEnergy(amountToAdd);
+        saveToNBT(player, storage);
     }
 
     public static void saveToNBT(Player player, EtherEnergyStorage storage) {
         CompoundTag tag = player.getPersistentData();
-        tag.putLong("etherEnergy", storage.getEnergy());  // 現在のエネルギー量
-        tag.putLong("etherCapacity", storage.getCapacity());  // 最大容量（capacity）を保存
+        tag.putLong("etherEnergy", storage.getEnergy());
+        tag.putLong("etherCapacity", storage.getCapacity());
     }
 
-    // NBTデータからエネルギーを読み込む
     public static EtherEnergyStorage loadStorageFromNBT(Player player) {
         CompoundTag tag = player.getPersistentData();
         if (tag.contains("etherEnergy") && tag.contains("etherCapacity")) {
             long energy = tag.getLong("etherEnergy");
             long capacity = tag.getLong("etherCapacity");
-            return new EtherEnergyStorage(energy, capacity); // energyとcapacityを渡す
+            return new EtherEnergyStorage(energy, capacity);
         }
         return null;
     }
+
     public static void setCapacity(Player player, long newCapacity) {
         EtherEnergyStorage storage = get(player);
         storage.setCapacity(newCapacity);
-
-        // 現在のエネルギーが上限を超えていたら下げる
         if (storage.getEnergy() > newCapacity) {
             storage.setEnergy(newCapacity);
         }
-
         saveToNBT(player, storage);
-    }}
+    }
 
+    // ─── Unified mana system ────────────────────────────────────────────
 
+    public static boolean hasManaContainer(Player player) {
+        if (player == null) return false;
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.getCapability(ManaCapabilities.MANA_ITEM) != null) return true;
+        }
+        for (ItemStack stack : player.getInventory().armor) {
+            if (stack.getCapability(ManaCapabilities.MANA_ITEM) != null) return true;
+        }
+        if (player.getOffhandItem().getCapability(ManaCapabilities.MANA_ITEM) != null) return true;
+        return false;
+    }
+
+    public static long getTotalMana(Player player) {
+        if (!hasManaContainer(player)) return 0;
+        long total = getEnergy(player);
+        total += sumContainerMana(player);
+        return total;
+    }
+
+    public static long getTotalCapacity(Player player) {
+        if (!hasManaContainer(player)) return 0;
+        long total = get(player).getCapacity();
+        total += sumContainerCapacity(player);
+        return total;
+    }
+
+    private static long sumContainerMana(Player player) {
+        long total = 0;
+        for (ItemStack stack : player.getInventory().items) {
+            IManaStorage storage = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (storage != null) total += storage.getManaStored();
+        }
+        for (ItemStack stack : player.getInventory().armor) {
+            IManaStorage storage = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (storage != null) total += storage.getManaStored();
+        }
+        IManaStorage offhand = player.getOffhandItem().getCapability(ManaCapabilities.MANA_ITEM);
+        if (offhand != null) total += offhand.getManaStored();
+        return total;
+    }
+
+    private static long sumContainerCapacity(Player player) {
+        long total = 0;
+        for (ItemStack stack : player.getInventory().items) {
+            IManaStorage storage = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (storage != null) total += storage.getMaxMana();
+        }
+        for (ItemStack stack : player.getInventory().armor) {
+            IManaStorage storage = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (storage != null) total += storage.getMaxMana();
+        }
+        IManaStorage offhand = player.getOffhandItem().getCapability(ManaCapabilities.MANA_ITEM);
+        if (offhand != null) total += offhand.getMaxMana();
+        return total;
+    }
+
+    private static long extractFromContainers(Player player, long amount) {
+        long remaining = amount;
+        for (ItemStack stack : player.getInventory().items) {
+            if (remaining <= 0) break;
+            IManaStorage container = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (container != null && container.canExtract()) {
+                remaining -= container.extractMana(remaining, false);
+            }
+        }
+        for (ItemStack stack : player.getInventory().armor) {
+            if (remaining <= 0) break;
+            IManaStorage container = stack.getCapability(ManaCapabilities.MANA_ITEM);
+            if (container != null && container.canExtract()) {
+                remaining -= container.extractMana(remaining, false);
+            }
+        }
+        if (remaining > 0) {
+            IManaStorage offhand = player.getOffhandItem().getCapability(ManaCapabilities.MANA_ITEM);
+            if (offhand != null && offhand.canExtract()) {
+                remaining -= offhand.extractMana(remaining, false);
+            }
+        }
+        return remaining;
+    }
+}

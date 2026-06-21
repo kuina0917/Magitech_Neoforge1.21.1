@@ -1,6 +1,6 @@
 package net.kuina.magitech.fluidtype.custom;
 
-import net.kuina.magitech.fluidtype.magitechfluidtypes;
+import net.kuina.magitech.fluidtype.MagitechFluidTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -52,6 +52,6 @@ public class ManaFluidType extends FluidType {
             public ResourceLocation getFlowingTexture() {
                 return FLOWING_TEXTURE;
             }
-        }, magitechfluidtypes.MANA_FLUID_TYPE.get());
+        }, MagitechFluidTypes.MANA_FLUID_TYPE.get());
     }
 }

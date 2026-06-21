@@ -1,6 +1,6 @@
 package net.kuina.magitech.entity.custom;
 
-import net.kuina.magitech.entity.magitechentities;
+import net.kuina.magitech.entity.MagitechEntities;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +25,7 @@ public class ZoltrakProjectile extends ThrowableProjectile implements ItemSuppli
     }
 
     public ZoltrakProjectile(Level level, LivingEntity shooter) {
-        super(magitechentities.ZOLTRAK_PROJECTILE.get(), shooter, level);
+        super(MagitechEntities.ZOLTRAK_PROJECTILE.get(), shooter, level);
     }
     private Vec3 startPos;  // 発射開始位置
     private static final double MAX_RANGE = 30.0; // 有効射程距離（ブロック単位）

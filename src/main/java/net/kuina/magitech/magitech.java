@@ -1,19 +1,19 @@
 package net.kuina.magitech;
 
-import net.kuina.magitech.block.magitechblockentities;
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.block.MagitechBlockEntities;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.kuina.magitech.client.overlay.EnergyHudOverlay;
-import net.kuina.magitech.component.magitechcomponents;
+import net.kuina.magitech.component.MagitechDataComponents;
 import net.kuina.magitech.energy.PlayerEventHandler;
-import net.kuina.magitech.entity.magitechentities;
+import net.kuina.magitech.entity.MagitechEntities;
 import net.kuina.magitech.client.renderer.MagicCircleRenderer;
 import net.kuina.magitech.client.renderer.MagicCircleRapidFireRenderer;
 
-import net.kuina.magitech.fluid.magitechfluids;
-import net.kuina.magitech.fluidtype.magitechfluidtypes;
-import net.kuina.magitech.item.magitechitems;
-import net.kuina.magitech.item.magitechtabs;
-import net.kuina.magitech.menu.magitechmenus;
+import net.kuina.magitech.fluid.MagitechFluids;
+import net.kuina.magitech.fluidtype.MagitechFluidTypes;
+import net.kuina.magitech.item.MagitechItems;
+import net.kuina.magitech.item.MagitechTabs;
+import net.kuina.magitech.menu.MagitechMenus;
 
 import net.kuina.magitech.client.renderer.ZoltrakProjectileRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -34,29 +34,29 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
-@Mod(magitech.MOD_ID)
-public class magitech {
+@Mod(Magitech.MOD_ID)
+public class Magitech {
     public static final String MOD_ID = "magitech";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public magitech(IEventBus modEventBus, ModContainer modContainer) {
+    public Magitech(IEventBus modEventBus, ModContainer modContainer) {
 
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this); // プレイヤーイベント等の登録
 
         // 登録系
-        magitechblocks.BLOCKS.register(modEventBus);
-        magitechblockentities.BLOCK_ENTITIES.register(modEventBus);
-        magitechitems.ITEMS.register(modEventBus);
-        magitechfluids.FLUIDS.register(modEventBus);
-        magitechfluidtypes.FLUID_TYPE.register(modEventBus);
-        magitechentities.ENTITIES.register(modEventBus);
-        magitechcomponents.register(modEventBus);
-        magitechtabs.register(modEventBus);
-        magitechmenus.register(modEventBus);
+        MagitechBlocks.BLOCKS.register(modEventBus);
+        MagitechBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        MagitechItems.ITEMS.register(modEventBus);
+        MagitechFluids.FLUIDS.register(modEventBus);
+        MagitechFluidTypes.FLUID_TYPE.register(modEventBus);
+        MagitechEntities.ENTITIES.register(modEventBus);
+        MagitechDataComponents.register(modEventBus);
+        MagitechTabs.register(modEventBus);
+        MagitechMenus.register(modEventBus);
         net.kuina.magitech.recipe.ModRecipes.SERIALIZERS.register(modEventBus);
         net.kuina.magitech.recipe.ModRecipes.TYPES.register(modEventBus);
-        net.kuina.magitech.worldgen.magitechfeatures.register(modEventBus);
+        net.kuina.magitech.worldgen.MagitechFeatures.register(modEventBus);
 
         // ネットワークパケットの登録
         modEventBus.addListener((net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent event) -> {
@@ -65,6 +65,30 @@ public class magitech {
                     net.kuina.magitech.network.SyncManaTargetsPayload.TYPE,
                     net.kuina.magitech.network.SyncManaTargetsPayload.STREAM_CODEC,
                     net.kuina.magitech.network.ManaExtractorPayloadHandler::handleSyncTargets
+            );
+
+            registrar.playToClient(
+                    net.kuina.magitech.network.s2c.SyncRelicBoardPayload.TYPE,
+                    net.kuina.magitech.network.s2c.SyncRelicBoardPayload.STREAM_CODEC,
+                    net.kuina.magitech.network.RelicBoardPayloadHandler::handleSyncBoard
+            );
+
+            registrar.playToServer(
+                    net.kuina.magitech.network.c2s.PlaceRelicPayload.TYPE,
+                    net.kuina.magitech.network.c2s.PlaceRelicPayload.STREAM_CODEC,
+                    net.kuina.magitech.network.RelicBoardPayloadHandler::handlePlaceRelic
+            );
+
+            registrar.playToServer(
+                    net.kuina.magitech.network.c2s.RemoveRelicPayload.TYPE,
+                    net.kuina.magitech.network.c2s.RemoveRelicPayload.STREAM_CODEC,
+                    net.kuina.magitech.network.RelicBoardPayloadHandler::handleRemoveRelic
+            );
+
+            registrar.playToServer(
+                    net.kuina.magitech.network.c2s.OpenRelicBoardPayload.TYPE,
+                    net.kuina.magitech.network.c2s.OpenRelicBoardPayload.STREAM_CODEC,
+                    net.kuina.magitech.network.RelicBoardPayloadHandler::handleOpenBoard
             );
         });
 
@@ -98,16 +122,16 @@ public class magitech {
         public static void onClientSetup(FMLClientSetupEvent event) {
             event.enqueueWork(() -> {
                 EntityRenderers.register(
-                        magitechentities.ZOLTRAK_PROJECTILE.get(),
+                        MagitechEntities.ZOLTRAK_PROJECTILE.get(),
                         ZoltrakProjectileRenderer::new);
 
                 EntityRenderers.register(
-                        magitechentities.MAGIC_CIRCLE.get(),
+                        MagitechEntities.MAGIC_CIRCLE.get(),
                         MagicCircleRenderer::new
 
                 );
                 EntityRenderers.register(
-                        magitechentities.MAGIC_CIRCLE_RAPIDFIRE.get(),
+                        MagitechEntities.MAGIC_CIRCLE_RAPIDFIRE.get(),
                         MagicCircleRapidFireRenderer::new
 
                 );
@@ -118,12 +142,14 @@ public class magitech {
         @SubscribeEvent
         public static void onRegisterScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
             event.register(
-                    magitechmenus.MANA_PROCESSOR_MENU.get(),
+                    MagitechMenus.MANA_PROCESSOR_MENU.get(),
                     net.kuina.magitech.client.screen.ManaProcessorScreen::new);
             event.register(
-                    magitechmenus.MANA_EXTRACTOR_MENU.get(),
+                    MagitechMenus.MANA_EXTRACTOR_MENU.get(),
                     net.kuina.magitech.client.screen.ManaExtractorScreen::new);
+            event.register(
+                    MagitechMenus.MANA_TANK_MENU.get(),
+                    net.kuina.magitech.client.screen.ManaTankScreen::new);
         }
     }
 }
-ださい

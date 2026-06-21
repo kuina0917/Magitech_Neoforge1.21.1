@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SCS",
+    "CMC",
+    "SCS"
+  ],
+  "key": {
+    "S": {
+      "item": "magitech:mana_stone"
+    },
+    "C": {
+      "item": "magitech:mana_crystal"
+    },
+    "M": {
+      "item": "magitech:machine_core"
+    }
+  },
+  "result": {
+    "id": "magitech:mana_extractor_core",
+    "count": 1
+  }
+}

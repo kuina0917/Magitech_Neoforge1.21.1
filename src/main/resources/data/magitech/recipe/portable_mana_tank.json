@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "I I",
+    "ITI",
+    "I I"
+  ],
+  "key": {
+    "I": {
+      "item": "magitech:low_mana_ingot"
+    },
+    "T": {
+      "item": "magitech:mana_tank"
+    }
+  },
+  "result": {
+    "id": "magitech:portable_mana_tank",
+    "count": 1
+  }
+}

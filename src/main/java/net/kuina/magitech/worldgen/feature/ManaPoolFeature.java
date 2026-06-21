@@ -1,7 +1,7 @@
 package net.kuina.magitech.worldgen.feature;
 
 import com.mojang.serialization.Codec;
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -77,7 +77,7 @@ public class ManaPoolFeature extends Feature<NoneFeatureConfiguration> {
                     if (distSq < 1.0) {
                         BlockPos target = pos.offset(x, y + 1, z); // y+1 することで、ループ内の y=-1 (液体最上段) が pos.getY() と一致するようにする
                         if (y < 0) {
-                            level.setBlock(target, magitechblocks.MANA.get().defaultBlockState(), 2);
+                            level.setBlock(target, MagitechBlocks.MANA.get().defaultBlockState(), 2);
                             // 密閉とアクセント（マナの丸石を混ぜる）
                             sealLiquidWithAccents(level, target, random);
                             fillUnderneath(level, target);
@@ -108,7 +108,7 @@ public class ManaPoolFeature extends Feature<NoneFeatureConfiguration> {
                         if (isAdjacentToManaOrAir(level, target)) {
                              if (isReplaceableByManaStone(state)) {
                                 if (random.nextDouble() < (1.0 - distSq) * 0.9) {
-                                    level.setBlock(target, magitechblocks.MANA_STONE.get().defaultBlockState(), 2);
+                                    level.setBlock(target, MagitechBlocks.MANA_STONE.get().defaultBlockState(), 2);
                                 }
                              }
                         }
@@ -135,7 +135,7 @@ public class ManaPoolFeature extends Feature<NoneFeatureConfiguration> {
                 if (dir == net.minecraft.core.Direction.UP) continue;
 
                 // 20% の確率でマナの丸石をアクセントとして混ぜる
-                BlockState state = random.nextDouble() < 0.2 ? magitechblocks.MANA_COBBLESTONE.get().defaultBlockState() : magitechblocks.MANA_STONE.get().defaultBlockState();
+                BlockState state = random.nextDouble() < 0.2 ? MagitechBlocks.MANA_COBBLESTONE.get().defaultBlockState() : MagitechBlocks.MANA_STONE.get().defaultBlockState();
                 level.setBlock(adjPos, state, 2);
             }
         }
@@ -152,7 +152,7 @@ public class ManaPoolFeature extends Feature<NoneFeatureConfiguration> {
                 // ただし、液体の真上だけは空気のままにする（水面を確保）
                 if (dir == net.minecraft.core.Direction.UP) continue;
                 
-                level.setBlock(adjPos, magitechblocks.MANA_STONE.get().defaultBlockState(), 2);
+                level.setBlock(adjPos, MagitechBlocks.MANA_STONE.get().defaultBlockState(), 2);
             }
         }
     }
@@ -180,7 +180,7 @@ public class ManaPoolFeature extends Feature<NoneFeatureConfiguration> {
     private boolean isAdjacentToManaOrAir(WorldGenLevel level, BlockPos pos) {
         for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
             BlockState adj = level.getBlockState(pos.relative(dir));
-            if (adj.is(magitechblocks.MANA.get()) || adj.isAir()) return true;
+            if (adj.is(MagitechBlocks.MANA.get()) || adj.isAir()) return true;
         }
         return false;
     }

@@ -1,17 +1,17 @@
 package net.kuina.magitech.util;
 
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * mod 全体で使う小さな共通処理をまとめたユーティリティ。
  *
  * <p><b>何をするもの:</b> このmodの ID（ResourceLocation）を作る手間を省く。
- * テクスチャ・Capability・登録名などで {@code "magitech:xxx"} を何度も書くのを避けられる。</p>
+ * テクスチャ・Capability・登録名などで {@code "Magitech:xxx"} を何度も書くのを避けられる。</p>
  *
  * <p><b>使い方:</b></p>
  * <pre>{@code
- * // "magitech:mana_still" を作る
+ * // "Magitech:mana_still" を作る
  * ResourceLocation id = ModUtil.rl("mana_still");
  *
  * // バニラ（minecraft:）の ID を作る
@@ -23,9 +23,9 @@ public final class ModUtil {
     private ModUtil() {
     }
 
-    /** このmod（magitech:）の名前空間で ID を作る。 */
+    /** このmod（Magitech:）の名前空間で ID を作る。 */
     public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(magitech.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(Magitech.MOD_ID, path);
     }
 
     /** バニラ（minecraft:）の名前空間で ID を作る。 */

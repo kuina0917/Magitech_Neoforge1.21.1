@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "magitech:middle_mana_ingot" },
+    { "item": "magitech:middle_mana_ingot" },
+    { "item": "magitech:middle_mana_ingot" },
+    { "item": "magitech:middle_mana_ingot" }
+  ],
+  "result": {
+    "id": "magitech:high_mana_ingot",
+    "count": 1
+  }
+}

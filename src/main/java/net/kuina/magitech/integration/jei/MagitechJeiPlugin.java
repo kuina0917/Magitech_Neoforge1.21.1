@@ -1,9 +1,10 @@
 package net.kuina.magitech.integration.jei;
 
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.Magitech;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.kuina.magitech.integration.jei.category.ManaProcessorRecipeCategory;
-import net.kuina.magitech.item.magitechitems;
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.item.MagitechItems;
+import net.kuina.magitech.menu.MagitechMenus;
 import net.kuina.magitech.recipe.ManaProcessorRecipe;
 import net.kuina.magitech.recipe.ModRecipes;
 import net.minecraft.client.Minecraft;
@@ -18,6 +19,8 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.IRecipeTransferRegistration;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class MagitechJeiPlugin implements IModPlugin {
 
     @Override
     public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(magitech.MOD_ID, "jei_plugin");
+        return ResourceLocation.fromNamespaceAndPath(Magitech.MOD_ID, "jei_plugin");
     }
 
     @Override
@@ -37,7 +40,32 @@ public class MagitechJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(magitechblocks.MANA_PROCESSOR.get()), ManaProcessorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(new ItemStack(MagitechBlocks.MANA_PROCESSOR.get()), ManaProcessorRecipeCategory.TYPE);
+    }
+
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        registration.addRecipeTransferHandler(
+                net.kuina.magitech.menu.ManaProcessorMenu.class,
+                MagitechMenus.MANA_PROCESSOR_MENU.get(),
+                ManaProcessorRecipeCategory.TYPE,
+                0,  // recipe slot start (input)
+                1,  // recipe slot count
+                2,  // inventory slot start
+                36  // inventory slot count
+        );
+    }
+
+    @Override
+    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addRecipeClickArea(
+                net.kuina.magitech.client.screen.ManaProcessorScreen.class,
+                79,  // 矢印のX（GUI左上からの相対座標）
+                34,  // 矢印のY
+                24,  // 矢印の幅
+                16,  // 矢印の高さ
+                ManaProcessorRecipeCategory.TYPE
+        );
     }
 
     @Override
@@ -60,7 +88,7 @@ public class MagitechJeiPlugin implements IModPlugin {
     private static ManaProcessorRecipe createDefaultRecipe() {
         return new ManaProcessorRecipe(
                 Ingredient.of(Items.IRON_INGOT),
-                new ItemStack(magitechitems.LOW_MANA_INGOT.get()),
+                new ItemStack(MagitechItems.LOW_MANA_INGOT.get()),
                 2000,
                 100);
     }

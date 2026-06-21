@@ -1,7 +1,7 @@
 package net.kuina.magitech.block;
 
 import net.kuina.magitech.block.custom.*;
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -11,8 +11,10 @@ import java.util.function.Function;
 
 import static net.minecraft.world.level.block.SoundType.*;
 
-public class magitechblocks {
-        public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(magitech.MOD_ID);
+public class MagitechBlocks {
+
+    public static final DeferredRegister.Blocks BLOCKS =
+            DeferredRegister.createBlocks(Magitech.MOD_ID);
         // マナの追加
         public static final DeferredBlock<Block> MANA = register("mana", ManaBlock::new);
 

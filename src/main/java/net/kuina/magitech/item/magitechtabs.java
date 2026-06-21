@@ -1,6 +1,6 @@
 package net.kuina.magitech.item;
 
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -9,46 +9,55 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/**
- * Magitech 専用のクリエイティブタブ。
- * この mod のアイテムはすべてここにまとめて表示する。
- * アイテムを追加したら {@code displayItems} の中に 1 行足すこと。
- */
-public class magitechtabs {
+public class MagitechTabs {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, magitech.MOD_ID);
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Magitech.MOD_ID);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAGITECH_TAB =
             CREATIVE_MODE_TABS.register("magitech", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.magitech"))                 // タブ名（lang参照）
-                    .icon(() -> new ItemStack(magitechitems.MANA_CRYSTAL.get()))         // タブのアイコン
+                    .title(Component.translatable("itemGroup.magitech"))
+                    .icon(() -> new ItemStack(MagitechItems.MANA_CRYSTAL.get()))
                     .displayItems((params, output) -> {
-                        // 素材
-                        output.accept(magitechitems.LOW_MANA_INGOT.get());
-                        output.accept(magitechitems.MIDDLE_MANA_INGOT.get());
-                        output.accept(magitechitems.HIGH_MANA_INGOT.get());
-                        output.accept(magitechitems.MANA_CRYSTAL.get());
+                        output.accept(MagitechItems.LOW_MANA_INGOT.get());
+                        output.accept(MagitechItems.MIDDLE_MANA_INGOT.get());
+                        output.accept(MagitechItems.HIGH_MANA_INGOT.get());
+                        output.accept(MagitechItems.MANA_CRYSTAL.get());
 
-                        // 道具・装備
-                        output.accept(magitechitems.MAGITECH_GUIDE.get());
-                        output.accept(magitechitems.CRYSTAL_ROD.get());
-                        output.accept(magitechitems.LOW_MANA_PICKAXE.get());
+                        output.accept(MagitechItems.MAGITECH_GUIDE.get());
+                        output.accept(MagitechItems.CRYSTAL_ROD.get());
+                        output.accept(MagitechItems.LOW_MANA_PICKAXE.get());
 
-                        // マナ関連
-                        output.accept(magitechitems.MANA_BUCKET.get());
-                        output.accept(magitechitems.PORTABLE_MANA_TANK.get());
-                        output.accept(magitechitems.MANA_TANK.get());
-                        output.accept(magitechitems.MANA_PROCESSOR.get());
-                        output.accept(magitechitems.MANA_EXTRACTOR_CASING.get());
-                        output.accept(magitechitems.MANA_EXTRACTOR_CORE.get());
-                        output.accept(magitechitems.CREATIVE_ETHER_ENERGY_BLOCK.get());
+                        output.accept(MagitechItems.MANA_BUCKET.get());
+                        output.accept(MagitechItems.PORTABLE_MANA_TANK.get());
+                        output.accept(MagitechItems.MANA_TANK.get());
+                        output.accept(MagitechItems.MANA_PROCESSOR.get());
+                        output.accept(MagitechItems.MANA_EXTRACTOR_CASING.get());
+                        output.accept(MagitechItems.MANA_EXTRACTOR_CORE.get());
+                        output.accept(MagitechItems.CREATIVE_ETHER_ENERGY_BLOCK.get());
 
-                        // ブロック
-                        output.accept(magitechitems.MANA_STONE.get());
-                        output.accept(magitechitems.MANA_COBBLESTONE.get());
-                        output.accept(magitechitems.ACTIVE_MAGITECH_BLOCK.get());
-                        output.accept(magitechitems.TESTBLOCK.get());
+                        output.accept(MagitechItems.MANA_STONE.get());
+                        output.accept(MagitechItems.MANA_COBBLESTONE.get());
+                        output.accept(MagitechItems.ACTIVE_MAGITECH_BLOCK.get());
+                        output.accept(MagitechItems.TESTBLOCK.get());
+                    })
+                    .build());
+
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> RELIC_TAB =
+            CREATIVE_MODE_TABS.register("magitech_relics", () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.magitech_relics"))
+                    .icon(() -> MagitechItems.createElementalCore())
+                    .displayItems((params, output) -> {
+                        output.accept(MagitechItems.RELIC_BOARD.get());
+                        output.accept(MagitechItems.createDemonSteelHeart());
+                        output.accept(MagitechItems.createGiantMuscleFiber());
+                        output.accept(MagitechItems.createSmithingGodCore());
+                        output.accept(MagitechItems.createWorldTreeSprout());
+                        output.accept(MagitechItems.createResonanceSpores());
+                        output.accept(MagitechItems.createFloatingPollenSac());
+                        output.accept(MagitechItems.createElementalCore());
+                        output.accept(MagitechItems.createPhaseCrystal());
+                        output.accept(MagitechItems.createImaginaryOperator());
                     })
                     .build());
 

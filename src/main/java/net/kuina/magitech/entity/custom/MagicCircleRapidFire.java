@@ -1,6 +1,6 @@
 package net.kuina.magitech.entity.custom;
 
-import net.kuina.magitech.entity.magitechentities;
+import net.kuina.magitech.entity.MagitechEntities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -43,7 +43,7 @@ public class MagicCircleRapidFire extends Entity implements IEntityWithComplexSp
     }
 
     public MagicCircleRapidFire(Level level, LivingEntity caster) {
-        this(magitechentities.MAGIC_CIRCLE_RAPIDFIRE.get(), level);
+        this(MagitechEntities.MAGIC_CIRCLE_RAPIDFIRE.get(), level);
         this.caster = caster;
         this.setPos(caster.getX(), caster.getY() + 1.0, caster.getZ());
 

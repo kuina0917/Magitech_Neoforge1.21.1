@@ -1,6 +1,6 @@
 package net.kuina.magitech.entity.custom;
 
-import net.kuina.magitech.entity.magitechentities;
+import net.kuina.magitech.entity.MagitechEntities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -18,7 +18,7 @@ public class MagicCircle extends Entity implements IEntityWithComplexSpawn {
     }
 
     public MagicCircle(Level level, double x, double y, double z, float yaw) {
-        this(magitechentities.MAGIC_CIRCLE.get(), level);
+        this(MagitechEntities.MAGIC_CIRCLE.get(), level);
         this.setPos(x, y, z);
         this.setYRot(yaw);
         this.setYHeadRot(yaw);

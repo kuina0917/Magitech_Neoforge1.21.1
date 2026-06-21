@@ -1,7 +1,7 @@
 package net.kuina.magitech.fluid;
 
 import net.kuina.magitech.fluid.custom.ManaFluid;
-import net.kuina.magitech.magitech;
+import net.kuina.magitech.Magitech;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,10 +18,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * マナ液体の登録。
  * 水源（{@link #MANA}）と流れ（{@link #FLOWING_MANA}）の 2 種類を登録する。
  */
-public class magitechfluids {
+public class MagitechFluids {
 
     public static final DeferredRegister<Fluid> FLUIDS =
-            DeferredRegister.create(BuiltInRegistries.FLUID, magitech.MOD_ID);
+            DeferredRegister.create(BuiltInRegistries.FLUID, Magitech.MOD_ID);
 
     /** マナの水源。 */
     public static final DeferredHolder<Fluid, FlowingFluid> MANA =

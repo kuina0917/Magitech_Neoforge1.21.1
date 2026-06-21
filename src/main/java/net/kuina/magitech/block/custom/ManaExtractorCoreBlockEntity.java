@@ -1,8 +1,8 @@
 package net.kuina.magitech.block.custom;
 
 import net.kuina.magitech.block.base.ManaContainerBlockEntity;
-import net.kuina.magitech.block.magitechblockentities;
-import net.kuina.magitech.block.magitechblocks;
+import net.kuina.magitech.block.MagitechBlockEntities;
+import net.kuina.magitech.block.MagitechBlocks;
 import net.kuina.magitech.capability.ManaCapabilities;
 import net.kuina.magitech.energy.IManaStorage;
 import net.kuina.magitech.energy.ManaTransfer;
@@ -43,7 +43,7 @@ public class ManaExtractorCoreBlockEntity extends ManaContainerBlockEntity {
     private final List<BlockPos> foundAddresses = new ArrayList<>();
 
     public ManaExtractorCoreBlockEntity(BlockPos pos, BlockState state) {
-        super(magitechblockentities.MANA_EXTRACTOR_CORE_ENTITY.get(), pos, state, MAX_CAPACITY);
+        super(MagitechBlockEntities.MANA_EXTRACTOR_CORE_ENTITY.get(), pos, state, MAX_CAPACITY);
     }
 
     public void tick() {
@@ -213,7 +213,7 @@ public class ManaExtractorCoreBlockEntity extends ManaContainerBlockEntity {
                     // コア自身の位置はチェックから除外
                     if (targetPos.equals(worldPosition)) continue;
 
-                    if (!level.getBlockState(targetPos).is(magitechblocks.MANA_EXTRACTOR_CASING.get())) {
+                    if (!level.getBlockState(targetPos).is(MagitechBlocks.MANA_EXTRACTOR_CASING.get())) {
                         return false;
                     }
                 }

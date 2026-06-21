@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:book" },
+    { "item": "magitech:mana_crystal" }
+  ],
+  "result": {
+    "id": "magitech:magitech_guide",
+    "count": 1
+  }
+}

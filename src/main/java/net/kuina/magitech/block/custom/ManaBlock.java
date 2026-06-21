@@ -1,7 +1,7 @@
 package net.kuina.magitech.block.custom;
 
-import net.kuina.magitech.fluid.magitechfluids;
-import net.kuina.magitech.item.magitechitems;
+import net.kuina.magitech.fluid.MagitechFluids;
+import net.kuina.magitech.item.MagitechItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +28,7 @@ public class ManaBlock extends LiquidBlock {
     private final Map<UUID, Integer> pendingConversion = new HashMap<>();
 
     public ManaBlock(BlockBehaviour.Properties properties) {
-        super(magitechfluids.MANA.get(),
+        super(MagitechFluids.MANA.get(),
                 properties.mapColor(MapColor.COLOR_CYAN)
                         .strength(100f).lightLevel(s -> 10)
                         .noCollission().noLootTable().liquid()
@@ -44,7 +44,7 @@ public class ManaBlock extends LiquidBlock {
         UUID id = itemEntity.getUUID();
 
         // --- TESTBLOCK → DIRT（液体残る） ---
-        if (stack.getItem() == magitechitems.TESTBLOCK.get()) {
+        if (stack.getItem() == MagitechItems.TESTBLOCK.get()) {
             int time = pendingConversion.getOrDefault(id, 0) + 1;
             pendingConversion.put(id, time);
 
@@ -107,7 +107,7 @@ public class ManaBlock extends LiquidBlock {
                 // 液体を空気に置き換える（消える）
                 level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 
-                ItemStack result = new ItemStack(magitechitems.LOW_MANA_INGOT.get(), stack.getCount());
+                ItemStack result = new ItemStack(MagitechItems.LOW_MANA_INGOT.get(), stack.getCount());
                 ItemEntity newItem = new ItemEntity(level,
                         pos.getX() + 0.5,
                         pos.getY() + 1.0,

@@ -1,7 +1,7 @@
 package net.kuina.magitech.block.custom;
 
 import net.kuina.magitech.block.base.MachineBlock;
-import net.kuina.magitech.block.magitechblockentities;
+import net.kuina.magitech.block.MagitechBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
